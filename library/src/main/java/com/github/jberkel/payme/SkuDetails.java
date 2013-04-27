@@ -15,6 +15,7 @@
 
 package com.github.jberkel.payme;
 
+import com.github.jberkel.payme.IabHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,23 +23,20 @@ import org.json.JSONObject;
  * Represents an in-app product's listing details.
  */
 public class SkuDetails {
-    final String mSku;
-    final String mType;
-    final String mPrice;
-    final String mTitle;
-    final String mDescription;
-
+    String mItemType;
+    String mSku;
+    String mType;
+    String mPrice;
+    String mTitle;
+    String mDescription;
     String mJson;
 
-    public SkuDetails(String sku, String type, String price, String title, String description) {
-        mSku = sku;
-        mType = type;
-        mPrice = price;
-        mTitle = title;
-        mDescription = description;
+    public SkuDetails(String jsonSkuDetails) throws JSONException {
+        this(IabHelper.ITEM_TYPE_INAPP, jsonSkuDetails);
     }
 
-    public SkuDetails(String jsonSkuDetails) throws JSONException {
+    public SkuDetails(String itemType, String jsonSkuDetails) throws JSONException {
+        mItemType = itemType;
         mJson = jsonSkuDetails;
         JSONObject o = new JSONObject(mJson);
         mSku = o.optString("productId");
@@ -48,25 +46,11 @@ public class SkuDetails {
         mDescription = o.optString("description");
     }
 
-    public String getSku() {
-        return mSku;
-    }
-
-    public String getType() {
-        return mType;
-    }
-
-    public String getPrice() {
-        return mPrice;
-    }
-
-    public String getTitle() {
-        return mTitle;
-    }
-
-    public String getDescription() {
-        return mDescription;
-    }
+    public String getSku() { return mSku; }
+    public String getType() { return mType; }
+    public String getPrice() { return mPrice; }
+    public String getTitle() { return mTitle; }
+    public String getDescription() { return mDescription; }
 
     @Override
     public String toString() {

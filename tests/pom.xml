@@ -50,7 +50,7 @@
             <groupId>com.github.jberkel</groupId>
             <artifactId>payme</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
+            <type>apklib</type>
             <scope>compile</scope>
        </dependency>
 
