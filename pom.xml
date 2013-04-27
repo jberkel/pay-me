@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.github.jberkel</groupId>
+    <artifactId>parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>PayMe parent</name>
+    <description>PayME parent</description>
+
+    <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <artifactId>android-maven-plugin</artifactId>
+                <version>3.3.2</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <artifactId>android-maven-plugin</artifactId>
+                <configuration>
+                    <sdk>
+                        <platform>14</platform>
+                    </sdk>
+                </configuration>
+                <extensions>true</extensions>
+            </plugin>
+
+            <!-- use intellij's @NotNull bytecode instrumentation in maven as well -->
+            <plugin>
+                <groupId>com.electriccloud</groupId>
+                <artifactId>javac2-maven-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <id>@NotNull Instrumentation</id>
+                        <goals>
+                            <goal>instrument</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <modules>
+        <module>library</module>
+        <module>tests</module>
+    </modules>
+
+    <repositories>
+        <repository>
+            <id>zegoggles-snapshots</id>
+            <name>zeggogles snapshots</name>
+            <url>http://zegoggl.es:8081/nexus/content/repositories/snapshots/</url>
+            <layout>default</layout>
+            <snapshots>
+              <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>zegoggles-releases</id>
+            <name>zeggogles snapshots</name>
+            <url>http://zegoggl.es:8081/nexus/content/repositories/releases/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>zegoggles-3rdparty</id>
+            <name>zeggogles 3rd party</name>
+            <url>http://zegoggl.es:8081/nexus/content/repositories/thirdparty/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+      <pluginRepository>
+          <id>zegoggles-releases</id>
+          <name>zeoggles releases</name>
+          <url>http://zegoggl.es:8081/nexus/content/repositories/releases/</url>
+      </pluginRepository>
+    </pluginRepositories>
+    <distributionManagement>
+      <snapshotRepository>
+        <uniqueVersion>true</uniqueVersion>
+        <id>zegoggles</id>
+        <name>zegoggles Snapshots</name>
+        <url>http://zegoggl.es:8081/nexus/content/repositories/snapshots/</url>
+      </snapshotRepository>
+    </distributionManagement>
+</project>
