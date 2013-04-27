@@ -46,6 +46,15 @@ public class SkuDetails {
         mDescription = o.optString("description");
     }
 
+    public SkuDetails(String sku, String type, String price, String title, String description) {
+        mItemType = IabHelper.ITEM_TYPE_INAPP;
+        mSku = sku;
+        mType = type;
+        mPrice = price;
+        mTitle = title;
+        mDescription = description;
+    }
+
     public String getSku() { return mSku; }
     public String getType() { return mType; }
     public String getPrice() { return mPrice; }

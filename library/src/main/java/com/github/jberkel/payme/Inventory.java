@@ -36,6 +36,10 @@ public class Inventory {
         return mSkuMap.get(sku);
     }
 
+    public Collection<SkuDetails> getSkuDetails() {
+        return mSkuMap.values();
+    }
+
     /** Returns purchase information for a given product, or null if there is no purchase. */
     public Purchase getPurchase(String sku) {
         return mPurchaseMap.get(sku);
