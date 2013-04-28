@@ -106,7 +106,6 @@ public class IabHelperTest {
         assertThat(helper.subscriptionsSupported()).isFalse();
     }
 
-
     private Context registerServiceWithPackageManager() {
         Context context = Robolectric.application;
         RobolectricPackageManager pm = (RobolectricPackageManager) context.getPackageManager();
