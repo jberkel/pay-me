@@ -48,12 +48,6 @@
             <name>zeggogles 3rd party</name>
             <url>http://zegoggl.es:8081/nexus/content/repositories/thirdparty/</url>
         </repository>
-
-        <repository>
-            <id>sonatype-snapshots</id>
-            <name>sonatype snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
     </repositories>
 
     <pluginRepositories>
