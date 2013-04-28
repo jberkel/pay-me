@@ -29,6 +29,7 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 import com.android.vending.billing.IInAppBillingService;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 
 import java.util.ArrayList;
@@ -201,7 +202,7 @@ public class IabHelper {
      *
      * @param listener The listener to notify when the setup process is complete.
      */
-    public void startSetup(final OnIabSetupFinishedListener listener) {
+    public void startSetup(final @Nullable OnIabSetupFinishedListener listener) {
         // If already set up, can't do it again.
         checkNotDisposed();
         if (mSetupDone) throw new IllegalStateException("IAB helper is already set up.");
@@ -333,7 +334,7 @@ public class IabHelper {
 
     // The listener registered on launchPurchaseFlow, which we have to call back when
     // the purchase finishes
-    OnIabPurchaseFinishedListener mPurchaseListener;
+    @Nullable OnIabPurchaseFinishedListener mPurchaseListener;
 
     public void launchPurchaseFlow(Activity act, String sku, int requestCode, OnIabPurchaseFinishedListener listener) {
         launchPurchaseFlow(act, sku, requestCode, listener, "");
@@ -373,7 +374,7 @@ public class IabHelper {
      *     and will always be returned when the purchase is queried.
      */
     public void launchPurchaseFlow(Activity act, String sku, String itemType, int requestCode,
-                        OnIabPurchaseFinishedListener listener, String extraData) {
+                        @Nullable OnIabPurchaseFinishedListener listener, String extraData) {
         checkNotDisposed();
         checkSetupDone("launchPurchaseFlow");
         flagStartAsync("launchPurchaseFlow");
@@ -610,7 +611,7 @@ public class IabHelper {
      */
     public void queryInventoryAsync(final boolean querySkuDetails,
                                final List<String> moreSkus,
-                               final QueryInventoryFinishedListener listener) {
+                               final @Nullable QueryInventoryFinishedListener listener) {
         final Handler handler = new Handler();
         checkNotDisposed();
         checkSetupDone("queryInventory");
@@ -899,7 +900,7 @@ public class IabHelper {
         return verificationFailed ? IABHELPER_VERIFICATION_FAILED : BILLING_RESPONSE_RESULT_OK;
     }
 
-    int querySkuDetails(String itemType, Inventory inv, List<String> moreSkus)
+    int querySkuDetails(String itemType, Inventory inv, @Nullable List<String> moreSkus)
                                 throws RemoteException, JSONException {
         logDebug("Querying SKU details.");
         ArrayList<String> skuList = new ArrayList<String>();
@@ -947,8 +948,8 @@ public class IabHelper {
 
 
     void consumeAsyncInternal(final List<Purchase> purchases,
-                              final OnConsumeFinishedListener singleListener,
-                              final OnConsumeMultiFinishedListener multiListener) {
+                              final @Nullable OnConsumeFinishedListener singleListener,
+                              final @Nullable OnConsumeMultiFinishedListener multiListener) {
         final Handler handler = new Handler();
         flagStartAsync("consume");
         (new Thread(new Runnable() {

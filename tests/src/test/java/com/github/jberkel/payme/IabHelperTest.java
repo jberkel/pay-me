@@ -104,8 +104,6 @@ public class IabHelperTest {
                 "RemoteException while setting up in-app billing."));
 
         assertThat(helper.subscriptionsSupported()).isFalse();
-
-
     }
 
 
