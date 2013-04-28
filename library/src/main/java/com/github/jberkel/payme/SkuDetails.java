@@ -15,7 +15,6 @@
 
 package com.github.jberkel.payme;
 
-import com.github.jberkel.payme.IabHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,13 +22,13 @@ import org.json.JSONObject;
  * Represents an in-app product's listing details.
  */
 public class SkuDetails {
-    String mItemType;
-    String mSku;
-    String mType;
-    String mPrice;
-    String mTitle;
-    String mDescription;
-    String mJson;
+    private final String mItemType;
+    private final String mSku;
+    private final String mType;
+    private final String mPrice;
+    private final String mTitle;
+    private final String mDescription;
+    private String mJson;
 
     public SkuDetails(String jsonSkuDetails) throws JSONException {
         this(IabHelper.ITEM_TYPE_INAPP, jsonSkuDetails);
@@ -46,8 +45,8 @@ public class SkuDetails {
         mDescription = o.optString("description");
     }
 
-    public SkuDetails(String sku, String type, String price, String title, String description) {
-        mItemType = IabHelper.ITEM_TYPE_INAPP;
+    public SkuDetails(String itemType, String sku, String type, String price, String title, String description) {
+        mItemType = itemType;
         mSku = sku;
         mType = type;
         mPrice = price;
@@ -63,6 +62,14 @@ public class SkuDetails {
 
     @Override
     public String toString() {
-        return "SkuDetails:" + mJson;
+        return "SkuDetails{" +
+                "mItemType='" + mItemType + '\'' +
+                ", mSku='" + mSku + '\'' +
+                ", mType='" + mType + '\'' +
+                ", mPrice='" + mPrice + '\'' +
+                ", mTitle='" + mTitle + '\'' +
+                ", mDescription='" + mDescription + '\'' +
+                ", mJson='" + mJson + '\'' +
+                '}';
     }
 }

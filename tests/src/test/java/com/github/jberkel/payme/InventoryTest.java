@@ -12,7 +12,6 @@ public class InventoryTest {
 
     @Test
     public void shouldAddPurchase() throws Exception {
-
         Inventory inventory = new Inventory();
         inventory.addPurchase(new Purchase(" { } ", ""));
 
