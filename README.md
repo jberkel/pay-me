@@ -1,5 +1,7 @@
 # pay-me
 
+[![Build Status](https://secure.travis-ci.org/jberkel/pay-me.png?branch=master)](http://travis-ci.org/jberkel/pay-me)
+
 An Android library for handling In-App-Billing V3 ([IABv3][]), based on Google's [marketbilling][] sample code.
 The goal of this project is to build a reliable and tested library which can easily be included in your projects.
 
