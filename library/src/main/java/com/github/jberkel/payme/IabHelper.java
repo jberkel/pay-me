@@ -73,41 +73,41 @@ public class IabHelper {
     public static final int API_VERSION = 3;
 
     // Is debug logging enabled?
-    boolean mDebugLog = false;
-    String mDebugTag = "IabHelper";
+    private boolean mDebugLog = false;
+    private String mDebugTag = "IabHelper";
 
     // Is setup done?
-    boolean mSetupDone = false;
+    private boolean mSetupDone = false;
 
     // Has this object been disposed of? (If so, we should ignore callbacks, etc)
-    boolean mDisposed = false;
+    private boolean mDisposed = false;
 
     // Are subscriptions supported?
-    boolean mSubscriptionsSupported = false;
+    private boolean mSubscriptionsSupported = false;
 
     // Is an asynchronous operation in progress?
     // (only one at a time can be in progress)
-    boolean mAsyncInProgress = false;
+    private boolean mAsyncInProgress = false;
 
     // (for logging/debugging)
     // if mAsyncInProgress == true, what asynchronous operation is in progress?
-    String mAsyncOperation = "";
+    private String mAsyncOperation = "";
 
     // Context we were passed during initialization
-    Context mContext;
+    private Context mContext;
 
     // Connection to the service
-    IInAppBillingService mService;
-    ServiceConnection mServiceConn;
+    private IInAppBillingService mService;
+    private ServiceConnection mServiceConn;
 
     // The request code used to launch purchase flow
-    int mRequestCode;
+    private int mRequestCode;
 
     // The item type of the current purchase flow
-    String mPurchasingItemType;
+    private String mPurchasingItemType;
 
     // Public key for verifying signature, in base64 encoding
-    String mSignatureBase64 = null;
+    private String mSignatureBase64 = null;
 
     // Billing response codes
     public static final int BILLING_RESPONSE_RESULT_OK = 0;
@@ -662,9 +662,9 @@ public class IabHelper {
         checkNotDisposed();
         checkSetupDone("consume");
 
-        if (!itemInfo.mItemType.equals(ITEM_TYPE_INAPP)) {
+        if (!itemInfo.getItemType().equals(ITEM_TYPE_INAPP)) {
             throw new IabException(IABHELPER_INVALID_CONSUMPTION,
-                    "Items of type '" + itemInfo.mItemType + "' can't be consumed.");
+                    "Items of type '" + itemInfo.getItemType() + "' can't be consumed.");
         }
 
         try {
