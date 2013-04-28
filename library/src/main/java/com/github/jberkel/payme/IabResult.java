@@ -24,8 +24,8 @@ package com.github.jberkel.payme;
  * calling {@link #isSuccess()} and {@link #isFailure()}.
  */
 public class IabResult {
-    int mResponse;
-    String mMessage;
+    private int mResponse;
+    private String mMessage;
 
     public IabResult(int response, String message) {
         mResponse = response;
@@ -54,6 +54,26 @@ public class IabResult {
 
     public String toString() {
         return "IabResult: " + getMessage();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IabResult iabResult = (IabResult) o;
+
+        if (mResponse != iabResult.mResponse) return false;
+        if (!mMessage.equals(iabResult.mMessage)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mResponse;
+        result = 31 * result + mMessage.hashCode();
+        return result;
     }
 }
 

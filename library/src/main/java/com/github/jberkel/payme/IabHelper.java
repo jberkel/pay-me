@@ -22,16 +22,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.android.vending.billing.IInAppBillingService;
-
 import org.json.JSONException;
 
 import java.util.ArrayList;
@@ -71,6 +68,9 @@ import java.util.List;
  *
  */
 public class IabHelper {
+    static final Intent BIND_BILLING_SERVICE = new Intent("com.android.vending.billing.InAppBillingService.BIND");
+    public static final int API_VERSION = 3;
+
     // Is debug logging enabled?
     boolean mDebugLog = false;
     String mDebugTag = "IabHelper";
@@ -219,13 +219,14 @@ public class IabHelper {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 if (mDisposed) return;
                 logDebug("Billing service connected.");
-                mService = IInAppBillingService.Stub.asInterface(service);
+                mService = getInAppBillingService(service);
+
                 String packageName = mContext.getPackageName();
                 try {
                     logDebug("Checking for in-app billing 3 support.");
 
                     // check for in-app billing v3 support
-                    int response = mService.isBillingSupported(3, packageName, ITEM_TYPE_INAPP);
+                    int response = mService.isBillingSupported(API_VERSION, packageName, ITEM_TYPE_INAPP);
                     if (response != BILLING_RESPONSE_RESULT_OK) {
                         if (listener != null) listener.onIabSetupFinished(new IabResult(response,
                                 "Error checking for billing v3 support."));
@@ -237,7 +238,7 @@ public class IabHelper {
                     logDebug("In-app billing version 3 supported for " + packageName);
 
                     // check for v3 subscriptions support
-                    response = mService.isBillingSupported(3, packageName, ITEM_TYPE_SUBS);
+                    response = mService.isBillingSupported(API_VERSION, packageName, ITEM_TYPE_SUBS);
                     if (response == BILLING_RESPONSE_RESULT_OK) {
                         logDebug("Subscriptions AVAILABLE.");
                         mSubscriptionsSupported = true;
@@ -253,7 +254,7 @@ public class IabHelper {
                         listener.onIabSetupFinished(new IabResult(IABHELPER_REMOTE_EXCEPTION,
                                                     "RemoteException while setting up in-app billing."));
                     }
-                    e.printStackTrace();
+                    Log.e(mDebugTag, "RemoteException while setting up in-app billing.", e);
                     return;
                 }
 
@@ -263,10 +264,10 @@ public class IabHelper {
             }
         };
 
-        Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
-        if (!mContext.getPackageManager().queryIntentServices(serviceIntent, 0).isEmpty()) {
+
+        if (!mContext.getPackageManager().queryIntentServices(BIND_BILLING_SERVICE, 0).isEmpty()) {
             // service available to handle that Intent
-            mContext.bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
+            mContext.bindService(BIND_BILLING_SERVICE, mServiceConn, Context.BIND_AUTO_CREATE);
         }
         else {
             // no service available to handle that Intent
@@ -276,6 +277,11 @@ public class IabHelper {
                         "Billing service unavailable on device."));
             }
         }
+    }
+
+    // for testing
+    protected IInAppBillingService getInAppBillingService(IBinder service) {
+        return IInAppBillingService.Stub.asInterface(service);
     }
 
     /**
@@ -383,7 +389,7 @@ public class IabHelper {
 
         try {
             logDebug("Constructing buy intent for " + sku + ", item type: " + itemType);
-            Bundle buyIntentBundle = mService.getBuyIntent(3, mContext.getPackageName(), sku, itemType, extraData);
+            Bundle buyIntentBundle = mService.getBuyIntent(API_VERSION, mContext.getPackageName(), sku, itemType, extraData);
             int response = getResponseCodeFromBundle(buyIntentBundle);
             if (response != BILLING_RESPONSE_RESULT_OK) {
                 logError("Unable to buy item, Error response: " + getResponseDesc(response));
@@ -672,7 +678,7 @@ public class IabHelper {
             }
 
             logDebug("Consuming sku: " + sku + ", token: " + token);
-            int response = mService.consumePurchase(3, mContext.getPackageName(), token);
+            int response = mService.consumePurchase(API_VERSION, mContext.getPackageName(), token);
             if (response == BILLING_RESPONSE_RESULT_OK) {
                logDebug("Successfully consumed sku: " + sku);
             }
@@ -839,7 +845,7 @@ public class IabHelper {
 
         do {
             logDebug("Calling getPurchases with continuation token: " + continueToken);
-            Bundle ownedItems = mService.getPurchases(3, mContext.getPackageName(),
+            Bundle ownedItems = mService.getPurchases(API_VERSION, mContext.getPackageName(),
                     itemType, continueToken);
 
             int response = getResponseCodeFromBundle(ownedItems);
@@ -913,7 +919,7 @@ public class IabHelper {
 
         Bundle querySkus = new Bundle();
         querySkus.putStringArrayList(GET_SKU_DETAILS_ITEM_LIST, skuList);
-        Bundle skuDetails = mService.getSkuDetails(3, mContext.getPackageName(),
+        Bundle skuDetails = mService.getSkuDetails(API_VERSION, mContext.getPackageName(),
                 itemType, querySkus);
 
         if (!skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
