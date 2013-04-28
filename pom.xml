@@ -5,8 +5,8 @@
     <artifactId>parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>PayMe parent</name>
-    <description>PayME parent</description>
+    <name>pay-me parent</name>
+    <description>pay-me parent</description>
 
     <build>
         <pluginManagement>
@@ -14,24 +14,12 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>3.5.2</version>
             </plugin>
           </plugins>
         </pluginManagement>
 
         <plugins>
-            <plugin>
-                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-                <artifactId>android-maven-plugin</artifactId>
-                <configuration>
-                    <sdk>
-                        <platform>14</platform>
-                    </sdk>
-                </configuration>
-                <extensions>true</extensions>
-            </plugin>
-
-            <!-- use intellij's @NotNull bytecode instrumentation in maven as well -->
             <plugin>
                 <groupId>com.electriccloud</groupId>
                 <artifactId>javac2-maven-plugin</artifactId>
@@ -56,21 +44,6 @@
 
     <repositories>
         <repository>
-            <id>zegoggles-snapshots</id>
-            <name>zeggogles snapshots</name>
-            <url>http://zegoggl.es:8081/nexus/content/repositories/snapshots/</url>
-            <layout>default</layout>
-            <snapshots>
-              <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>zegoggles-releases</id>
-            <name>zeggogles snapshots</name>
-            <url>http://zegoggl.es:8081/nexus/content/repositories/releases/</url>
-            <layout>default</layout>
-        </repository>
-        <repository>
             <id>zegoggles-3rdparty</id>
             <name>zeggogles 3rd party</name>
             <url>http://zegoggl.es:8081/nexus/content/repositories/thirdparty/</url>
@@ -85,6 +58,7 @@
           <url>http://zegoggl.es:8081/nexus/content/repositories/releases/</url>
       </pluginRepository>
     </pluginRepositories>
+
     <distributionManagement>
       <snapshotRepository>
         <uniqueVersion>true</uniqueVersion>

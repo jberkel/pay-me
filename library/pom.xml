@@ -8,12 +8,10 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-
     <artifactId>payme</artifactId>
     <packaging>apklib</packaging>
     <description>PayMe library</description>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>PayMe</name>
+    <name>pay-me</name>
 
     <build>
         <plugins>
@@ -21,6 +19,25 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3</version>
+            </plugin>
+
+            <plugin>
+                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <artifactId>android-maven-plugin</artifactId>
+                <configuration>
+                    <sdk>
+                        <platform>14</platform>
+                    </sdk>
+
+                    <lint>
+                        <skip>false</skip>
+                        <failOnError>true</failOnError>
+                        <enableHtml>true</enableHtml>
+                        <warningsAsErrors>true</warningsAsErrors>
+                        <enableClasspath>true</enableClasspath>
+                    </lint>
+                </configuration>
+                <extensions>true</extensions>
             </plugin>
 
         </plugins>

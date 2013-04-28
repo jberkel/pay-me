@@ -10,7 +10,7 @@
 
     <artifactId>tests</artifactId>
     <packaging>jar</packaging>
-    <name>Robolectric tests</name>
+    <name>pay-me robolectric tests</name>
 
     <build>
         <plugins>
