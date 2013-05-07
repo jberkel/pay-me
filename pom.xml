@@ -50,6 +50,7 @@
     <modules>
         <module>library</module>
         <module>tests</module>
+        <module>example</module>
     </modules>
 
     <repositories>
