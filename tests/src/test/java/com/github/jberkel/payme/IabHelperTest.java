@@ -61,8 +61,15 @@ public class IabHelperTest {
     @After public void after() { /* verify(service); */ }
 
     @Test public void shouldCreateHelper() throws Exception {
-        new IabHelper(Robolectric.application, "key");
+        IabHelper helper = new IabHelper(Robolectric.application, "key");
+        assertThat(helper.getSignature()).isEqualTo("key");
     }
+
+    @Test public void shouldCreateHelperFromResource() throws Exception {
+        IabHelper helper = new IabHelper(Robolectric.application);
+        assertThat(helper.getSignature()).isEqualTo("sample-public-key");
+    }
+
 
     @Test public void shouldStartSetup_SuccessCase() throws Exception {
         registerServiceWithPackageManager();
@@ -249,6 +256,24 @@ public class IabHelperTest {
 
         when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_SUBS, "")).thenReturn(response);
         helper.launchSubscriptionPurchaseFlow(activity, "sku", TEST_REQUEST_CODE, purchaseFinishedListener, "");
+        assertThat(called[0]).isTrue();
+    }
+
+    @Test public void shouldLaunchSubscriptionPurchaseFlowWithoutExtraData() throws Exception {
+        shouldStartSetup_SuccessCase();
+
+        final boolean[] called = {false};
+        Activity activity = new Activity() {
+            @Override
+            public void startIntentSenderForResult(IntentSender intent, int requestCode, Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags) throws IntentSender.SendIntentException {
+                called[0] = true;
+            }
+        };
+        Bundle response = new Bundle();
+        response.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(Robolectric.application, 0, new Intent(), 0));
+
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_SUBS, "")).thenReturn(response);
+        helper.launchSubscriptionPurchaseFlow(activity, "sku", TEST_REQUEST_CODE, purchaseFinishedListener);
         assertThat(called[0]).isTrue();
     }
 

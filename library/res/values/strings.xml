@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="name">pay-me</string>
+
+    <!-- override in your own projects -->
+    <string name="com_github_jberkel_payme_public_key">sample-public-key</string>
 </resources>

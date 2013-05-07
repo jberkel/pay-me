@@ -116,6 +116,15 @@ public class IabHelper {
     private @Nullable OnIabPurchaseFinishedListener mPurchaseListener;
 
     /**
+     * Like {@link #IabHelper(android.content.Context, String)}, but uses the string resource
+     * <code>com_github_jberkel_payme_public_key</code> to resolve a public key.
+     * @param ctx Your application or Activity context. Needed to bind to the in-app billing service.
+     */
+    public IabHelper(Context ctx) {
+        this(ctx, ctx.getString(R.string.com_github_jberkel_payme_public_key));
+    }
+
+    /**
      * Creates an instance. After creation, it will not yet be ready to use. You must perform
      * setup by calling {@link #startSetup} and wait for setup to complete. This constructor does not
      * block and is safe to call from a UI thread.
@@ -135,9 +144,10 @@ public class IabHelper {
     /**
      * Enables or disable debug logging through LogCat.
      */
+    @SuppressWarnings("UnusedDeclaration")
     public void enableDebugLogging(boolean enable, String tag) {
         checkNotDisposed();
-        mDebugLog = enable;
+        enableDebugLogging(enable);
         mDebugTag = tag;
     }
 
@@ -628,7 +638,7 @@ public class IabHelper {
     }
 
     /**
-     * Same as {@link consumeAsync}, but for multiple items at once.
+     * Same as {@link consumeAsync(Purchase, OnConsumeFinishedListener)}, but for multiple items at once.
      * @param purchases The list of PurchaseInfo objects representing the purchases to consume.
      * @param listener The listener to notify when the consumption operation finishes.
      */
@@ -679,6 +689,10 @@ public class IabHelper {
             logError("Illegal state for operation (" + operation + "): IAB helper is not set up.");
             throw new IllegalStateException("IAB helper is not set up. Can't perform operation: " + operation);
         }
+    }
+
+    protected String getSignature() {
+        return mSignatureBase64;
     }
 
     // Workaround to bug where sometimes response codes come as Long instead of Integer
@@ -873,4 +887,5 @@ public class IabHelper {
     private void logWarn(String msg) {
         Log.w(mDebugTag, "In-app billing warning: " + msg);
     }
+
 }
