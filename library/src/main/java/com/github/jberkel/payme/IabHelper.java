@@ -457,7 +457,7 @@ public class IabHelper {
             return true;
         }
 
-        int responseCode = getResponseCodeFromIntent(data);
+        int responseCode = getResponseCodeFromBundle(data.getExtras());
         String purchaseData = data.getStringExtra(RESPONSE_INAPP_PURCHASE_DATA);
         String dataSignature = data.getStringExtra(RESPONSE_INAPP_SIGNATURE);
 
@@ -660,7 +660,7 @@ public class IabHelper {
      * @param itemInfo The PurchaseInfo that represents the item to consume.
      * @throws IabException if there is a problem during consumption.
      */
-    private void consume(Purchase itemInfo) throws IabException {
+    public void consume(Purchase itemInfo) throws IabException {
         checkNotDisposed();
         checkSetupDone("consume");
 
@@ -791,9 +791,9 @@ public class IabHelper {
     }
 
     // Workaround to bug where sometimes response codes come as Long instead of Integer
-    private int getResponseCodeFromBundle(Bundle b) {
-        Object o = b.get(RESPONSE_CODE);
-        if (o == null) {
+    protected int getResponseCodeFromBundle(Bundle bundle) {
+        Object o;
+        if (bundle == null || ((o = bundle.get(RESPONSE_CODE)) == null)) {
             logDebug("Bundle with null response code, assuming OK (known issue)");
             return BILLING_RESPONSE_RESULT_OK;
         }
@@ -803,22 +803,6 @@ public class IabHelper {
             logError("Unexpected type for bundle response code.");
             logError(o.getClass().getName());
             throw new RuntimeException("Unexpected type for bundle response code: " + o.getClass().getName());
-        }
-    }
-
-    // Workaround to bug where sometimes response codes come as Long instead of Integer
-    private int getResponseCodeFromIntent(Intent i) {
-        Object o;
-        if (i.getExtras() == null || (o = i.getExtras().get(RESPONSE_CODE)) == null) {
-            logError("Intent with no response code, assuming OK (known issue)");
-            return BILLING_RESPONSE_RESULT_OK;
-        }
-        else if (o instanceof Integer) return (Integer) o;
-        else if (o instanceof Long) return (int)((Long)o).longValue();
-        else {
-            logError("Unexpected type for intent response code.");
-            logError(o.getClass().getName());
-            throw new RuntimeException("Unexpected type for intent response code: " + o.getClass().getName());
         }
     }
 
@@ -928,8 +912,7 @@ public class IabHelper {
             if (response != BILLING_RESPONSE_RESULT_OK) {
                 logDebug("getSkuDetails() failed: " + getResponseDesc(response));
                 return response;
-            }
-            else {
+            } else {
                 logError("getSkuDetails() returned a bundle with neither an error nor a detail list.");
                 return IABHELPER_BAD_RESPONSE;
             }
