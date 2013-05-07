@@ -34,7 +34,7 @@ public class Purchase {
     private String mOriginalJson;
 
     public Purchase(String jsonPurchaseInfo, String signature) throws JSONException {
-        this(IabHelper.ITEM_TYPE_INAPP, jsonPurchaseInfo, signature);
+        this(IabConsts.ITEM_TYPE_INAPP, jsonPurchaseInfo, signature);
     }
 
     public Purchase(String itemType, String jsonPurchaseInfo, String signature) throws JSONException {

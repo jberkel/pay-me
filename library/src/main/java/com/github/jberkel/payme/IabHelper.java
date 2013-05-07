@@ -35,6 +35,8 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.jberkel.payme.IabConsts.*;
+
 
 /**
  * Provides convenience methods for in-app billing. You can create one instance of this
@@ -113,48 +115,6 @@ public class IabHelper {
     // the purchase finishes
     private @Nullable OnIabPurchaseFinishedListener mPurchaseListener;
 
-    // Billing response codes
-    public static final int BILLING_RESPONSE_RESULT_OK = 0;
-    public static final int BILLING_RESPONSE_RESULT_USER_CANCELED = 1;
-    public static final int BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE = 3;
-    public static final int BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE = 4;
-    public static final int BILLING_RESPONSE_RESULT_DEVELOPER_ERROR = 5;
-    public static final int BILLING_RESPONSE_RESULT_ERROR = 6;
-    public static final int BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED = 7;
-    public static final int BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED = 8;
-
-    // IAB Helper error codes
-    public static final int IABHELPER_ERROR_BASE = -1000;
-    public static final int IABHELPER_REMOTE_EXCEPTION = -1001;
-    public static final int IABHELPER_BAD_RESPONSE = -1002;
-    public static final int IABHELPER_VERIFICATION_FAILED = -1003;
-    public static final int IABHELPER_SEND_INTENT_FAILED = -1004;
-    public static final int IABHELPER_USER_CANCELLED = -1005;
-    public static final int IABHELPER_UNKNOWN_PURCHASE_RESPONSE = -1006;
-    public static final int IABHELPER_MISSING_TOKEN = -1007;
-    public static final int IABHELPER_UNKNOWN_ERROR = -1008;
-    public static final int IABHELPER_SUBSCRIPTIONS_NOT_AVAILABLE = -1009;
-    public static final int IABHELPER_INVALID_CONSUMPTION = -1010;
-
-    // Keys for the responses from InAppBillingService
-    public static final String RESPONSE_CODE = "RESPONSE_CODE";
-    public static final String RESPONSE_GET_SKU_DETAILS_LIST = "DETAILS_LIST";
-    public static final String RESPONSE_BUY_INTENT = "BUY_INTENT";
-    public static final String RESPONSE_INAPP_PURCHASE_DATA = "INAPP_PURCHASE_DATA";
-    public static final String RESPONSE_INAPP_SIGNATURE = "INAPP_DATA_SIGNATURE";
-    public static final String RESPONSE_INAPP_ITEM_LIST = "INAPP_PURCHASE_ITEM_LIST";
-    public static final String RESPONSE_INAPP_PURCHASE_DATA_LIST = "INAPP_PURCHASE_DATA_LIST";
-    public static final String RESPONSE_INAPP_SIGNATURE_LIST = "INAPP_DATA_SIGNATURE_LIST";
-    public static final String INAPP_CONTINUATION_TOKEN = "INAPP_CONTINUATION_TOKEN";
-
-    // Item types
-    public static final String ITEM_TYPE_INAPP = "inapp";
-    public static final String ITEM_TYPE_SUBS = "subs";
-
-    // some fields on the getSkuDetails response bundle
-    public static final String GET_SKU_DETAILS_ITEM_LIST = "ITEM_ID_LIST";
-    public static final String GET_SKU_DETAILS_ITEM_TYPE_LIST = "ITEM_TYPE_LIST";
-
     /**
      * Creates an instance. After creation, it will not yet be ready to use. You must perform
      * setup by calling {@link #startSetup} and wait for setup to complete. This constructor does not
@@ -184,19 +144,6 @@ public class IabHelper {
     public void enableDebugLogging(boolean enable) {
         checkNotDisposed();
         mDebugLog = enable;
-    }
-
-    /**
-     * Callback for setup process. This listener's {@link #onIabSetupFinished} method is called
-     * when the setup process is complete.
-     */
-    public interface OnIabSetupFinishedListener {
-        /**
-         * Called to notify that setup is complete.
-         *
-         * @param result The result of the setup process.
-         */
-        public void onIabSetupFinished(IabResult result);
     }
 
     /**
@@ -317,22 +264,6 @@ public class IabHelper {
     public boolean subscriptionsSupported() {
         checkNotDisposed();
         return mSubscriptionsSupported;
-    }
-
-    /**
-     * Callback that notifies when a purchase is finished.
-     */
-    public interface OnIabPurchaseFinishedListener {
-        /**
-         * Called to notify that an in-app purchase finished. If the purchase was successful,
-         * then the sku parameter specifies which item was purchased. If the purchase failed,
-         * the sku and extraData parameters may or may not be null, depending on how far the purchase
-         * process went.
-         *
-         * @param result The result of the purchase.
-         * @param info The purchase information (null if purchase failed)
-         */
-        public void onIabPurchaseFinished(IabResult result, Purchase info);
     }
 
     public void launchPurchaseFlow(Activity act, String sku, int requestCode, OnIabPurchaseFinishedListener listener) {
@@ -585,19 +516,6 @@ public class IabHelper {
         }
     }
 
-    /**
-     * Listener that notifies when an inventory query operation completes.
-     */
-    public interface QueryInventoryFinishedListener {
-        /**
-         * Called to notify that an inventory query operation completed.
-         *
-         * @param result The result of the operation.
-         * @param inv The inventory.
-         */
-        public void onQueryInventoryFinished(IabResult result, Inventory inv);
-    }
-
 
     /**
      * Asynchronous wrapper for inventory query. This will perform an inventory
@@ -691,33 +609,6 @@ public class IabHelper {
         catch (RemoteException e) {
             throw new IabException(IABHELPER_REMOTE_EXCEPTION, "Remote exception while consuming. PurchaseInfo: " + itemInfo, e);
         }
-    }
-
-    /**
-     * Callback that notifies when a consumption operation finishes.
-     */
-    public interface OnConsumeFinishedListener {
-        /**
-         * Called to notify that a consumption has finished.
-         *
-         * @param purchase The purchase that was (or was to be) consumed.
-         * @param result The result of the consumption operation.
-         */
-        public void onConsumeFinished(Purchase purchase, IabResult result);
-    }
-
-    /**
-     * Callback that notifies when a multi-item consumption operation finishes.
-     */
-    public interface OnConsumeMultiFinishedListener {
-        /**
-         * Called to notify that a consumption of multiple items has finished.
-         *
-         * @param purchases The purchases that were (or were to be) consumed.
-         * @param results The results of each consumption operation, corresponding to each
-         *     sku.
-         */
-        public void onConsumeMultiFinished(List<Purchase> purchases, List<IabResult> results);
     }
 
     /**

@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 import static com.github.jberkel.payme.IabHelper.*;
+import static com.github.jberkel.payme.IabConsts.*;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
 import static org.mockito.Matchers.*;
@@ -38,7 +40,7 @@ public class IabHelperTest {
     private static final int TEST_REQUEST_CODE = 42;
 
     @Mock private IInAppBillingService service;
-    @Mock private IabHelper.OnIabSetupFinishedListener setupListener;
+    @Mock private OnIabSetupFinishedListener setupListener;
     @Mock private  OnIabPurchaseFinishedListener purchaseFinishedListener;
 
 
@@ -142,16 +144,16 @@ public class IabHelperTest {
     @Test(expected = IllegalStateException.class)
     public void shouldRaiseExceptionIfPurchaseFlowLaunchedWithoutSetup() throws Exception {
         Activity activity = new Activity();
-        helper.launchPurchaseFlow(activity, "sku", IabHelper.ITEM_TYPE_INAPP, 0, purchaseFinishedListener, "");
+        helper.launchPurchaseFlow(activity, "sku", ITEM_TYPE_INAPP, 0, purchaseFinishedListener, "");
     }
 
     @Test public void shouldLaunchPurchaseFlowWithEmptyBundleShouldFail() throws Exception {
         shouldStartSetup_SuccessCase();
         Activity activity = new Activity();
         Bundle response = new Bundle();
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", IabHelper.ITEM_TYPE_INAPP, "")).thenReturn(response);
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenReturn(response);
 
-        helper.launchPurchaseFlow(activity, "sku", IabHelper.ITEM_TYPE_INAPP, 0, purchaseFinishedListener, "");
+        helper.launchPurchaseFlow(activity, "sku", ITEM_TYPE_INAPP, 0, purchaseFinishedListener, "");
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
                 new IabResult(IABHELPER_SEND_INTENT_FAILED, "Failed to send intent."),
@@ -162,9 +164,9 @@ public class IabHelperTest {
         shouldStartSetup_SuccessCase();
         Bundle response = new Bundle();
         response.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR);
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", IabHelper.ITEM_TYPE_INAPP, "")).thenReturn(response);
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenReturn(response);
 
-        helper.launchPurchaseFlow(null, "sku", IabHelper.ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
+        helper.launchPurchaseFlow(null, "sku", ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
                 new IabResult(BILLING_RESPONSE_RESULT_ERROR, "Unable to buy item"),
@@ -182,8 +184,8 @@ public class IabHelperTest {
         Bundle response = new Bundle();
         response.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(Robolectric.application, 0, new Intent(), 0));
 
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", IabHelper.ITEM_TYPE_INAPP, "")).thenReturn(response);
-        helper.launchPurchaseFlow(activity, "sku", IabHelper.ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenReturn(response);
+        helper.launchPurchaseFlow(activity, "sku", ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
                 new IabResult(IABHELPER_SEND_INTENT_FAILED, "Failed to send intent."),
@@ -193,8 +195,8 @@ public class IabHelperTest {
     @Test public void shouldLaunchPurchaseFlowAndThrowRemoteException() throws Exception {
         shouldStartSetup_SuccessCase();
 
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", IabHelper.ITEM_TYPE_INAPP, "")).thenThrow(new RemoteException());
-        helper.launchPurchaseFlow(null, "sku", IabHelper.ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenThrow(new RemoteException());
+        helper.launchPurchaseFlow(null, "sku", ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
                 new IabResult(IABHELPER_REMOTE_EXCEPTION, "Remote exception while starting purchase flow"),
@@ -203,7 +205,7 @@ public class IabHelperTest {
 
     @Test public void shouldLaunchPurchaseFlowForSubscriptionsWhenUnsupported() throws Exception {
         shouldStartSetup_CheckForSubscriptions_Unavailable();
-        helper.launchPurchaseFlow(null, "sku", IabHelper.ITEM_TYPE_SUBS, TEST_REQUEST_CODE, purchaseFinishedListener, "");
+        helper.launchPurchaseFlow(null, "sku", ITEM_TYPE_SUBS, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
                 new IabResult(IABHELPER_SUBSCRIPTIONS_NOT_AVAILABLE, "Subscriptions are not available."),
@@ -226,9 +228,9 @@ public class IabHelperTest {
         Bundle response = new Bundle();
         response.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(Robolectric.application, 0, new Intent(), 0));
 
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", IabHelper.ITEM_TYPE_INAPP, "")).thenReturn(response);
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenReturn(response);
 
-        helper.launchPurchaseFlow(activity, "sku", IabHelper.ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
+        helper.launchPurchaseFlow(activity, "sku", ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
         assertThat(called[0]).isTrue();
     }
 
@@ -245,7 +247,7 @@ public class IabHelperTest {
         Bundle response = new Bundle();
         response.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(Robolectric.application, 0, new Intent(), 0));
 
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", IabHelper.ITEM_TYPE_SUBS, "")).thenReturn(response);
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_SUBS, "")).thenReturn(response);
         helper.launchSubscriptionPurchaseFlow(activity, "sku", TEST_REQUEST_CODE, purchaseFinishedListener, "");
         assertThat(called[0]).isTrue();
     }
