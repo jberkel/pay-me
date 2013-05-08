@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-      <groupId>com.github.jberkel</groupId>
+      <groupId>com.github.jberkel.payme</groupId>
       <artifactId>parent</artifactId>
       <version>0.0.1-SNAPSHOT</version>
     </parent>
@@ -39,6 +39,7 @@
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
+                    <!--
                     <execution>
                         <id>report</id>
                         <phase>prepare-package</phase>
@@ -46,6 +47,7 @@
                             <goal>report</goal>
                         </goals>
                     </execution>
+                    -->
                 </executions>
             </plugin>
         </plugins>
@@ -53,18 +55,16 @@
 
     <dependencies>
        <dependency>
-            <groupId>com.github.jberkel</groupId>
-            <artifactId>payme</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>library</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
             <scope>compile</scope>
        </dependency>
 
        <dependency>
-            <groupId>com.google.android</groupId>
+            <groupId>android</groupId>
             <artifactId>android</artifactId>
-            <version>4.0.1.2</version>
-            <scope>provided</scope>
         </dependency>
 
        <dependency>
