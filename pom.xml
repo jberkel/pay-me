@@ -27,21 +27,6 @@
 
         <plugins>
             <plugin>
-                <groupId>com.electriccloud</groupId>
-                <artifactId>javac2-maven-plugin</artifactId>
-                <version>1.0.1</version>
-                <executions>
-                    <execution>
-                        <id>@NotNull Instrumentation</id>
-                        <goals>
-                            <goal>instrument</goal>
-                        </goals>
-                        <phase>process-classes</phase>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
@@ -55,7 +40,6 @@
 
     <modules>
         <module>library</module>
-        <!-- <module>library-jar</module> -->
         <module>tests</module>
         <module>example</module>
     </modules>
