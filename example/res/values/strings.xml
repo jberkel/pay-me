@@ -5,4 +5,6 @@
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">TrivialDrive</string>
 
+    <!-- change this to the real key -->
+    <string name="com_github_jberkel_payme_public_key">CHANGE-ME</string>
 </resources>
