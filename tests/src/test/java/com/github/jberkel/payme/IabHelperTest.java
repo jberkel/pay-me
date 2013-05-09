@@ -26,14 +26,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-import static com.github.jberkel.payme.IabHelper.*;
 import static com.github.jberkel.payme.IabConsts.*;
+import static com.github.jberkel.payme.IabHelper.API_VERSION;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class IabHelperTest {
@@ -85,7 +85,7 @@ public class IabHelperTest {
                 "Billing service unavailable on device."));
     }
 
-    @Test public void shouldStartSetup_ServiceExistsButDoesNotSupportBilling() throws Exception {
+    @Test public void shouldStartSetup_ServiceDoesNotSupportBilling() throws Exception {
         registerServiceWithPackageManager();
         when(service.isBillingSupported(eq(API_VERSION), anyString(), anyString())).thenReturn(BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE);
 
@@ -154,11 +154,13 @@ public class IabHelperTest {
         helper.launchPurchaseFlow(activity, "sku", ITEM_TYPE_INAPP, 0, purchaseFinishedListener, "");
     }
 
-    @Test public void shouldLaunchPurchaseFlowWithEmptyBundleShouldFail() throws Exception {
+    // launchPurchaseFlow
+
+    @Test public void shouldFailPurchaseWhenEmptyResponseIsReturned() throws Exception {
         shouldStartSetup_SuccessCase();
         Activity activity = new Activity();
-        Bundle response = new Bundle();
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenReturn(response);
+        Bundle empty = new Bundle();
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenReturn(empty);
 
         helper.launchPurchaseFlow(activity, "sku", ITEM_TYPE_INAPP, 0, purchaseFinishedListener, "");
 
@@ -167,11 +169,11 @@ public class IabHelperTest {
                 null);
     }
 
-    @Test public void shouldLaunchPurchaseFlowAndReturnError() throws Exception {
+    @Test public void shouldFailPurchaseWhenErrorIsReturned() throws Exception {
         shouldStartSetup_SuccessCase();
-        Bundle response = new Bundle();
-        response.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR);
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenReturn(response);
+        Bundle errorResponse = new Bundle();
+        errorResponse.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR);
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenReturn(errorResponse);
 
         helper.launchPurchaseFlow(null, "sku", ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
@@ -180,7 +182,7 @@ public class IabHelperTest {
                 null);
     }
 
-    @Test public void shouldLaunchPurchaseFlowAndThrowSendIntentException() throws Exception {
+    @Test public void shouldFailPurchaseWhenSendIntentExceptionIsThrown() throws Exception {
         shouldStartSetup_SuccessCase();
         Activity activity = new Activity() {
             @Override
@@ -199,7 +201,7 @@ public class IabHelperTest {
                 null);
     }
 
-    @Test public void shouldLaunchPurchaseFlowAndThrowRemoteException() throws Exception {
+    @Test public void shouldFailPurchaseWhenRemoteExceptionIsThrown() throws Exception {
         shouldStartSetup_SuccessCase();
 
         when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenThrow(new RemoteException());
@@ -210,7 +212,7 @@ public class IabHelperTest {
                 null);
     }
 
-    @Test public void shouldLaunchPurchaseFlowForSubscriptionsWhenUnsupported() throws Exception {
+    @Test public void shouldFailSubscriptionPurchaseWhenUnsupported() throws Exception {
         shouldStartSetup_CheckForSubscriptions_Unavailable();
         helper.launchPurchaseFlow(null, "sku", ITEM_TYPE_SUBS, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
@@ -219,62 +221,42 @@ public class IabHelperTest {
                 null);
     }
 
-    @Test public void shouldLaunchPurchaseAndStartIntent() throws Exception {
+    @Test public void shouldStartIntentAfterSuccessfulLaunchPurchase() throws Exception {
         shouldStartSetup_SuccessCase();
-        final boolean[] called = {false};
-        Activity activity = new Activity() {
-            @Override
-            public void startIntentSenderForResult(IntentSender intent, int requestCode, Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags) throws IntentSender.SendIntentException {
-                called[0] = true;
-                assertThat(requestCode).isEqualTo(TEST_REQUEST_CODE);
-                assertThat(flagsMask).isEqualTo(0);
-                assertThat(flagsValues).isEqualTo(0);
-                assertThat(extraFlags).isEqualTo(0);
-            }
-        };
+
         Bundle response = new Bundle();
         response.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(Robolectric.application, 0, new Intent(), 0));
 
         when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenReturn(response);
 
+        Activity activity = mock(Activity.class);
         helper.launchPurchaseFlow(activity, "sku", ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
-        assertThat(called[0]).isTrue();
+        verify(activity).startIntentSenderForResult(any(IntentSender.class), eq(TEST_REQUEST_CODE), any(Intent.class), eq(0), eq(0), eq(0));
     }
 
-    @Test public void shouldLaunchSubscriptionPurchaseFlow() throws Exception {
+    @Test public void shouldStartIntentAfterSuccessfulLaunchPurchaseForSubscription() throws Exception {
         shouldStartSetup_SuccessCase();
 
-        final boolean[] called = {false};
-        Activity activity = new Activity() {
-            @Override
-            public void startIntentSenderForResult(IntentSender intent, int requestCode, Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags) throws IntentSender.SendIntentException {
-                called[0] = true;
-            }
-        };
         Bundle response = new Bundle();
         response.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(Robolectric.application, 0, new Intent(), 0));
 
         when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_SUBS, "")).thenReturn(response);
+
+        Activity activity = mock(Activity.class);
         helper.launchSubscriptionPurchaseFlow(activity, "sku", TEST_REQUEST_CODE, purchaseFinishedListener, "");
-        assertThat(called[0]).isTrue();
+        verify(activity).startIntentSenderForResult(any(IntentSender.class), eq(TEST_REQUEST_CODE), any(Intent.class), eq(0), eq(0), eq(0));
     }
 
     @Test public void shouldLaunchSubscriptionPurchaseFlowWithoutExtraData() throws Exception {
         shouldStartSetup_SuccessCase();
 
-        final boolean[] called = {false};
-        Activity activity = new Activity() {
-            @Override
-            public void startIntentSenderForResult(IntentSender intent, int requestCode, Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags) throws IntentSender.SendIntentException {
-                called[0] = true;
-            }
-        };
         Bundle response = new Bundle();
         response.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(Robolectric.application, 0, new Intent(), 0));
 
         when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_SUBS, "")).thenReturn(response);
+        Activity activity = mock(Activity.class);
         helper.launchSubscriptionPurchaseFlow(activity, "sku", TEST_REQUEST_CODE, purchaseFinishedListener);
-        assertThat(called[0]).isTrue();
+        verify(activity).startIntentSenderForResult(any(IntentSender.class), eq(TEST_REQUEST_CODE), any(Intent.class), eq(0), eq(0), eq(0));
     }
 
     // handleActivityResult
@@ -284,12 +266,12 @@ public class IabHelperTest {
     }
 
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultNullData() throws Exception {
-        shouldLaunchPurchaseAndStartIntent();
+        shouldStartIntentAfterSuccessfulLaunchPurchase();
         assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, 0, null)).isTrue();
     }
 
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithData() throws Exception {
-        shouldLaunchPurchaseAndStartIntent();
+        shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
         data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK);
         data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, "{}");
@@ -300,7 +282,7 @@ public class IabHelperTest {
     }
 
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithoutData() throws Exception {
-        shouldLaunchPurchaseAndStartIntent();
+        shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
         data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK);
 
@@ -309,7 +291,7 @@ public class IabHelperTest {
     }
 
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithInvalidData() throws Exception {
-        shouldLaunchPurchaseAndStartIntent();
+        shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
         data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK);
         data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, "this is not json");
@@ -320,7 +302,7 @@ public class IabHelperTest {
     }
 
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithErrorResponseCode() throws Exception {
-        shouldLaunchPurchaseAndStartIntent();
+        shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
         data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR);
 
@@ -330,7 +312,7 @@ public class IabHelperTest {
     }
 
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithCanceledResultCode() throws Exception {
-        shouldLaunchPurchaseAndStartIntent();
+        shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
         data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK);
 
@@ -339,14 +321,13 @@ public class IabHelperTest {
     }
 
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithUnknownResultCode() throws Exception {
-        shouldLaunchPurchaseAndStartIntent();
+        shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
         data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK);
 
         assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, 23, data)).isTrue();
         verify(purchaseFinishedListener).onIabPurchaseFinished(new IabResult(IABHELPER_UNKNOWN_PURCHASE_RESPONSE, "Unknown purchase response."), null);
     }
-
 
     // inventory
 
@@ -369,7 +350,6 @@ public class IabHelperTest {
         assertThat(inventory.getAllOwnedSkus()).hasSize(1);
         assertThat(inventory.getSkuDetails()).isEmpty();
     }
-
 
     @Test public void shouldQueryInventoryWithoutSubscriptionsButSkuDetails() throws Exception {
         shouldStartSetup_CheckForSubscriptions_Unavailable();
