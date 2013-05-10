@@ -24,20 +24,23 @@ package com.github.jberkel.payme;
  * calling {@link #isSuccess()} and {@link #isFailure()}.
  */
 public class IabResult {
-    private final int mResponse;
+    private final Response mResponse;
     private final String mMessage;
 
-    public IabResult(int response, String message) {
+    public IabResult(int code, String message) {
+        this(Response.fromCode(code), message);
+    }
+    public IabResult(Response response, String message) {
         mResponse = response;
         if (message == null || message.trim().length() == 0) {
-            mMessage = IabHelper.getResponseDesc(response);
+            mMessage = response.description;
         } else {
-            mMessage = message + " (response: " + IabHelper.getResponseDesc(response) + ")";
+            mMessage = message + " (response: " + response.description + ")";
         }
     }
 
     public int getResponse() {
-        return mResponse;
+        return mResponse.code;
     }
 
     public String getMessage() {
@@ -45,7 +48,7 @@ public class IabResult {
     }
 
     public boolean isSuccess() {
-        return mResponse == IabConsts.BILLING_RESPONSE_RESULT_OK;
+        return mResponse == Response.BILLING_RESPONSE_RESULT_OK;
     }
 
     public boolean isFailure() {
@@ -67,7 +70,7 @@ public class IabResult {
 
     @Override
     public int hashCode() {
-        int result = mResponse;
+        int result = mResponse.hashCode();
         result = 31 * result + mMessage.hashCode();
         return result;
     }

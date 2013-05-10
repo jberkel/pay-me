@@ -32,13 +32,17 @@ public class IabException extends Exception {
         this(new IabResult(response, message));
     }
 
+    public IabException(Response response, String message, Exception cause) {
+        this(new IabResult(response, message), cause);
+    }
+
+    public IabException(Response response, String message) {
+        this(new IabResult(response, message), null);
+    }
+
     public IabException(IabResult r, Exception cause) {
         super(r.getMessage(), cause);
         mResult = r;
-    }
-
-    public IabException(int response, String message, Exception cause) {
-        this(new IabResult(response, message), cause);
     }
 
     /**

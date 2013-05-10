@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.github.jberkel.payme.IabConsts.*;
+import static com.github.jberkel.payme.Response.*;
 import static com.github.jberkel.payme.IabHelper.API_VERSION;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
@@ -87,7 +88,7 @@ public class IabHelperTest {
 
     @Test public void shouldStartSetup_ServiceDoesNotSupportBilling() throws Exception {
         registerServiceWithPackageManager();
-        when(service.isBillingSupported(eq(API_VERSION), anyString(), anyString())).thenReturn(BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE);
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), anyString())).thenReturn(BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE.code);
 
         helper.startSetup(setupListener);
         verify(setupListener).onIabSetupFinished(new IabResult(
@@ -99,8 +100,8 @@ public class IabHelperTest {
 
     @Test public void shouldStartSetup_CheckForSubscriptions_Unavailable() throws Exception {
         registerServiceWithPackageManager();
-        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(ITEM_TYPE_INAPP))).thenReturn(BILLING_RESPONSE_RESULT_OK);
-        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(ITEM_TYPE_SUBS))).thenReturn(BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE);
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(ITEM_TYPE_INAPP))).thenReturn(BILLING_RESPONSE_RESULT_OK.code);
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(ITEM_TYPE_SUBS))).thenReturn(BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE.code);
 
         helper.startSetup(setupListener);
 
@@ -110,8 +111,8 @@ public class IabHelperTest {
 
     @Test public void shouldStartSetup_CheckForSubscriptions_Success() throws Exception {
         registerServiceWithPackageManager();
-        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(ITEM_TYPE_INAPP))).thenReturn(BILLING_RESPONSE_RESULT_OK);
-        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(ITEM_TYPE_SUBS))).thenReturn(BILLING_RESPONSE_RESULT_OK);
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(ITEM_TYPE_INAPP))).thenReturn(BILLING_RESPONSE_RESULT_OK.code);
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(ITEM_TYPE_SUBS))).thenReturn(BILLING_RESPONSE_RESULT_OK.code);
 
         helper.startSetup(setupListener);
 
@@ -172,7 +173,7 @@ public class IabHelperTest {
     @Test public void shouldFailPurchaseWhenErrorIsReturned() throws Exception {
         shouldStartSetup_SuccessCase();
         Bundle errorResponse = new Bundle();
-        errorResponse.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR);
+        errorResponse.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR.code);
         when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", ITEM_TYPE_INAPP, "")).thenReturn(errorResponse);
 
         helper.launchPurchaseFlow(null, "sku", ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
@@ -293,7 +294,7 @@ public class IabHelperTest {
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithData() throws Exception {
         shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
-        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK);
+        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK.code);
         data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, "{}");
         data.putExtra(RESPONSE_INAPP_SIGNATURE, "");
 
@@ -304,7 +305,7 @@ public class IabHelperTest {
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithoutData() throws Exception {
         shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
-        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK);
+        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK.code);
 
         assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, Activity.RESULT_OK, data)).isTrue();
         verify(purchaseFinishedListener).onIabPurchaseFinished(eq(new IabResult(IABHELPER_UNKNOWN_ERROR, "IAB returned null purchaseData or dataSignature")), any(Purchase.class));
@@ -313,7 +314,7 @@ public class IabHelperTest {
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithInvalidData() throws Exception {
         shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
-        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK);
+        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK.code);
         data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, "this is not json");
         data.putExtra(RESPONSE_INAPP_SIGNATURE, "");
 
@@ -324,7 +325,7 @@ public class IabHelperTest {
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithErrorResponseCode() throws Exception {
         shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
-        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR);
+        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR.code);
 
         assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, Activity.RESULT_OK, data)).isTrue();
 
@@ -334,7 +335,7 @@ public class IabHelperTest {
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithCanceledResultCode() throws Exception {
         shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
-        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK);
+        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK.code);
 
         assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, Activity.RESULT_CANCELED, data)).isTrue();
         verify(purchaseFinishedListener).onIabPurchaseFinished(new IabResult(IABHELPER_USER_CANCELLED, "User canceled."), null);
@@ -343,7 +344,7 @@ public class IabHelperTest {
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithUnknownResultCode() throws Exception {
         shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
-        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK);
+        data.putExtra(RESPONSE_CODE, BILLING_RESPONSE_RESULT_OK.code);
 
         assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, 23, data)).isTrue();
         verify(purchaseFinishedListener).onIabPurchaseFinished(new IabResult(IABHELPER_UNKNOWN_PURCHASE_RESPONSE, "Unknown purchase response."), null);
@@ -413,7 +414,7 @@ public class IabHelperTest {
         response.putString(INAPP_CONTINUATION_TOKEN, "");
 
         Bundle skuDetails = new Bundle();
-        skuDetails.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR);
+        skuDetails.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR.code);
 
         when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), ITEM_TYPE_INAPP, null))
                 .thenReturn(response);
@@ -464,7 +465,7 @@ public class IabHelperTest {
         shouldStartSetup_SuccessCase();
 
         Bundle response = new Bundle();
-        response.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_DEVELOPER_ERROR);
+        response.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_DEVELOPER_ERROR.code);
         when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), ITEM_TYPE_INAPP, null))
                 .thenReturn(response);
 
@@ -538,14 +539,14 @@ public class IabHelperTest {
         shouldStartSetup_SuccessCase();
         Purchase purchase = new Purchase("{ \"token\": \"foo\" }", "");
 
-        when(service.consumePurchase(API_VERSION, Robolectric.application.getPackageName(), "foo")).thenReturn(BILLING_RESPONSE_RESULT_OK);
+        when(service.consumePurchase(API_VERSION, Robolectric.application.getPackageName(), "foo")).thenReturn(BILLING_RESPONSE_RESULT_OK.code);
         helper.consume(purchase);
     }
 
     @Test(expected = IabException.class) public void shouldConsumeInAppItemErrorResponse() throws Exception {
         shouldStartSetup_SuccessCase();
         Purchase purchase = new Purchase("{ \"token\": \"foo\" }", "");
-        when(service.consumePurchase(API_VERSION, Robolectric.application.getPackageName(), "foo")).thenReturn(BILLING_RESPONSE_RESULT_ERROR);
+        when(service.consumePurchase(API_VERSION, Robolectric.application.getPackageName(), "foo")).thenReturn(BILLING_RESPONSE_RESULT_ERROR.code);
         helper.consume(purchase);
     }
 
@@ -559,7 +560,7 @@ public class IabHelperTest {
     // getResponseCodeFromBundle
     @Test public void shouldGetResponseCodeFromBundleEmpty() throws Exception {
         Bundle b = new Bundle();
-        assertThat(helper.getResponseCodeFromBundle(b)).isEqualTo(BILLING_RESPONSE_RESULT_OK);
+        assertThat(helper.getResponseCodeFromBundle(b)).isEqualTo(BILLING_RESPONSE_RESULT_OK.code);
     }
 
     @Test public void shouldGetResponseCodeFromBundleInt() throws Exception {
