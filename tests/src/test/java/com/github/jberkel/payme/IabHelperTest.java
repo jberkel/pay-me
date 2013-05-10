@@ -78,7 +78,7 @@ public class IabHelperTest {
         verify(setupListener).onIabSetupFinished(new IabResult(0, "Setup successful."));
     }
 
-    @Test public void shouldStartSetup_ServiceDoesNotExist() throws Exception {
+    @Test public void shouldStartSetup_BillingServiceDoesNotExist() throws Exception {
         helper.startSetup(setupListener);
         verify(setupListener).onIabSetupFinished(new IabResult(
                 BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE,
@@ -209,6 +209,26 @@ public class IabHelperTest {
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
                 new IabResult(IABHELPER_REMOTE_EXCEPTION, "Remote exception while starting purchase flow"),
+                null);
+    }
+
+    @Test public void shouldFailPurchaseWhenBillingUnsupported() throws Exception {
+        shouldStartSetup_ServiceDoesNotSupportBilling();
+
+        helper.launchPurchaseFlow(null, "sku", ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
+
+        verify(purchaseFinishedListener).onIabPurchaseFinished(
+                new IabResult(IABHELPER_BILLING_NOT_AVAILABLE, "Billing not available."),
+                null);
+    }
+
+    @Test public void shouldFailPurchaseWhenBillingUnsupported_NoService() throws Exception {
+        shouldStartSetup_BillingServiceDoesNotExist();
+
+        helper.launchPurchaseFlow(null, "sku", ITEM_TYPE_INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
+
+        verify(purchaseFinishedListener).onIabPurchaseFinished(
+                new IabResult(IABHELPER_BILLING_NOT_AVAILABLE, "Billing not available."),
                 null);
     }
 

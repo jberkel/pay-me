@@ -74,28 +74,22 @@ public class IabHelper {
     static final Intent BIND_BILLING_SERVICE = new Intent("com.android.vending.billing.InAppBillingService.BIND");
     public static final int API_VERSION = 3;
 
-    // Is debug logging enabled?
-    private boolean mDebugLog = false;
+    private boolean mDebugLog;
     private String mDebugTag = "IabHelper";
 
-    // Is setup done?
-    private boolean mSetupDone = false;
-
-    // Has this object been disposed of? (If so, we should ignore callbacks, etc)
-    private boolean mDisposed = false;
-
-    // Are subscriptions supported?
-    private boolean mSubscriptionsSupported = false;
+    private boolean mSetupDone;
+    private boolean mDisposed;
+    private boolean mSubscriptionsSupported;
+    private boolean mInAppSupported;
 
     // Is an asynchronous operation in progress?
     // (only one at a time can be in progress)
-    private boolean mAsyncInProgress = false;
+    private boolean mAsyncInProgress;
 
     // (for logging/debugging)
     // if mAsyncInProgress == true, what asynchronous operation is in progress?
     private String mAsyncOperation = "";
 
-    // Context we were passed during initialization
     private Context mContext;
 
     // Connection to the service
@@ -109,10 +103,9 @@ public class IabHelper {
     private String mPurchasingItemType;
 
     // Public key for verifying signature, in base64 encoding
-    private String mSignatureBase64 = null;
+    private String mSignatureBase64;
 
-    // The listener registered on launchPurchaseFlow, which we have to call back when
-    // the purchase finishes
+    // The listener registered on launchPurchaseFlow, which we have to call back when the purchase finishes
     private @Nullable OnIabPurchaseFinishedListener mPurchaseListener;
 
     /**
@@ -190,34 +183,31 @@ public class IabHelper {
                     // check for in-app billing v3 support
                     int response = mService.isBillingSupported(API_VERSION, packageName, ITEM_TYPE_INAPP);
                     if (response != BILLING_RESPONSE_RESULT_OK) {
-                        if (listener != null) listener.onIabSetupFinished(new IabResult(response,
-                                "Error checking for billing v3 support."));
+                        if (listener != null) {
+                            listener.onIabSetupFinished(new IabResult(response, "Error checking for billing v3 support."));
+                        }
+                    } else {
+                        logDebug("In-app billing version 3 supported for " + packageName);
+                        mInAppSupported = true;
 
-                        // if in-app purchases aren't supported, neither are subscriptions.
-                        mSubscriptionsSupported = false;
-                        return;
+                        // check for v3 subscriptions support
+                        response = mService.isBillingSupported(API_VERSION, packageName, ITEM_TYPE_SUBS);
+                        if (response == BILLING_RESPONSE_RESULT_OK) {
+                            logDebug("Subscriptions AVAILABLE.");
+                            mSubscriptionsSupported = true;
+                        } else {
+                            logDebug("Subscriptions NOT AVAILABLE. Response: " + response);
+                        }
                     }
-                    logDebug("In-app billing version 3 supported for " + packageName);
-
-                    // check for v3 subscriptions support
-                    response = mService.isBillingSupported(API_VERSION, packageName, ITEM_TYPE_SUBS);
-                    if (response == BILLING_RESPONSE_RESULT_OK) {
-                        logDebug("Subscriptions AVAILABLE.");
-                        mSubscriptionsSupported = true;
-                    }
-                    else {
-                        logDebug("Subscriptions NOT AVAILABLE. Response: " + response);
-                    }
-
-                    mSetupDone = true;
-                }
-                catch (RemoteException e) {
+                } catch (RemoteException e) {
                     if (listener != null) {
                         listener.onIabSetupFinished(new IabResult(IABHELPER_REMOTE_EXCEPTION,
                                                     "RemoteException while setting up in-app billing."));
                     }
                     Log.e(mDebugTag, "RemoteException while setting up in-app billing.", e);
                     return;
+                } finally {
+                    mSetupDone = true;
                 }
 
                 if (listener != null) {
@@ -226,13 +216,12 @@ public class IabHelper {
             }
         };
 
-
         if (!mContext.getPackageManager().queryIntentServices(BIND_BILLING_SERVICE, 0).isEmpty()) {
             // service available to handle that Intent
             mContext.bindService(BIND_BILLING_SERVICE, mServiceConn, Context.BIND_AUTO_CREATE);
-        }
-        else {
+        } else {
             // no service available to handle that Intent
+            mSetupDone = true;
             if (listener != null) {
                 listener.onIabSetupFinished(
                         new IabResult(BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE,
@@ -320,11 +309,18 @@ public class IabHelper {
         flagStartAsync("launchPurchaseFlow");
         IabResult result;
 
-        if (itemType.equals(ITEM_TYPE_SUBS) && !mSubscriptionsSupported) {
-            IabResult r = new IabResult(IABHELPER_SUBSCRIPTIONS_NOT_AVAILABLE,
-                    "Subscriptions are not available.");
+        if (itemType.equals(ITEM_TYPE_SUBS)  && !mSubscriptionsSupported ||
+            itemType.equals(ITEM_TYPE_INAPP) && !mInAppSupported) {
+
             flagEndAsync();
-            if (listener != null) listener.onIabPurchaseFinished(r, null);
+            if (listener != null) {
+                if (itemType.equals(ITEM_TYPE_INAPP)) {
+                    result = new IabResult(IABHELPER_BILLING_NOT_AVAILABLE, "Billing not available.");
+                } else {
+                    result = new IabResult(IABHELPER_SUBSCRIPTIONS_NOT_AVAILABLE, "Subscriptions are not available.");
+                }
+                listener.onIabPurchaseFinished(result, null);
+            }
             return;
         }
 
@@ -358,8 +354,7 @@ public class IabHelper {
 
             result = new IabResult(IABHELPER_SEND_INTENT_FAILED, "Failed to send intent.");
             if (listener != null) listener.onIabPurchaseFinished(result, null);
-        }
-        catch (RemoteException e) {
+        } catch (RemoteException e) {
             logError("RemoteException while launching purchase flow for sku " + sku, e);
             flagEndAsync();
 
@@ -638,7 +633,7 @@ public class IabHelper {
     }
 
     /**
-     * Same as {@link consumeAsync(Purchase, OnConsumeFinishedListener)}, but for multiple items at once.
+     * Same as {@link #consumeAsync(Purchase, OnConsumeFinishedListener)}, but for multiple items at once.
      * @param purchases The list of PurchaseInfo objects representing the purchases to consume.
      * @param listener The listener to notify when the consumption operation finishes.
      */
