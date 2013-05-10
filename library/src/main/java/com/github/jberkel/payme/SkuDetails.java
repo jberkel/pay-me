@@ -45,8 +45,8 @@ public class SkuDetails {
         mDescription = o.optString("description");
     }
 
-    public SkuDetails(String itemType, String sku, String type, String price, String title, String description) {
-        mItemType = ItemType.fromString(itemType);
+    public SkuDetails(ItemType itemType, String sku, String type, String price, String title, String description) {
+        mItemType = itemType;
         mSku = sku;
         mType = type;
         mPrice = price;
