@@ -30,6 +30,11 @@ public class IabResult {
     public IabResult(int code, String message) {
         this(Response.fromCode(code), message);
     }
+
+    public IabResult(Response response) {
+        this(response, null);
+    }
+
     public IabResult(Response response, String message) {
         mResponse = response;
         if (message == null || message.trim().length() == 0) {

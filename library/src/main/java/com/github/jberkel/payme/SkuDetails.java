@@ -22,7 +22,7 @@ import org.json.JSONObject;
  * Represents an in-app product's listing details.
  */
 public class SkuDetails {
-    private final String mItemType;
+    private final ItemType mItemType;
     private final String mSku;
     private final String mType;
     private final String mPrice;
@@ -31,10 +31,10 @@ public class SkuDetails {
     private String mJson;
 
     public SkuDetails(String jsonSkuDetails) throws JSONException {
-        this(IabConsts.ITEM_TYPE_INAPP, jsonSkuDetails);
+        this(ItemType.INAPP, jsonSkuDetails);
     }
 
-    public SkuDetails(String itemType, String jsonSkuDetails) throws JSONException {
+    public SkuDetails(ItemType itemType, String jsonSkuDetails) throws JSONException {
         mItemType = itemType;
         mJson = jsonSkuDetails;
         JSONObject o = new JSONObject(mJson);
@@ -46,7 +46,7 @@ public class SkuDetails {
     }
 
     public SkuDetails(String itemType, String sku, String type, String price, String title, String description) {
-        mItemType = itemType;
+        mItemType = ItemType.fromString(itemType);
         mSku = sku;
         mType = type;
         mPrice = price;

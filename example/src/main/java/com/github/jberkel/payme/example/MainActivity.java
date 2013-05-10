@@ -24,7 +24,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.github.jberkel.payme.*;
+import com.github.jberkel.payme.IabHelper;
+import com.github.jberkel.payme.IabResult;
+import com.github.jberkel.payme.Inventory;
+import com.github.jberkel.payme.ItemType;
+import com.github.jberkel.payme.OnConsumeFinishedListener;
+import com.github.jberkel.payme.OnIabPurchaseFinishedListener;
+import com.github.jberkel.payme.OnIabSetupFinishedListener;
+import com.github.jberkel.payme.Purchase;
+import com.github.jberkel.payme.QueryInventoryFinishedListener;
 
 
 /**
@@ -269,7 +277,7 @@ public class MainActivity extends Activity {
         setWaitScreen(true);
         Log.d(TAG, "Launching purchase flow for infinite gas subscription.");
         mHelper.launchPurchaseFlow(this,
-                SKU_INFINITE_GAS, IabConsts.ITEM_TYPE_SUBS,
+                SKU_INFINITE_GAS, ItemType.SUBS,
                 RC_REQUEST, mPurchaseFinishedListener, payload);
     }
 

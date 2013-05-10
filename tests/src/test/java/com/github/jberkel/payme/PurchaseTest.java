@@ -23,5 +23,6 @@ public class PurchaseTest {
         assertThat(p.getDeveloperPayload()).isEqualTo("custom");
         assertThat(p.getSignature()).isEqualTo("signature");
         assertThat(p.getOriginalJson()).isEqualTo(purchase);
+        assertThat(p.getItemType()).isEqualTo(ItemType.INAPP);
     }
 }

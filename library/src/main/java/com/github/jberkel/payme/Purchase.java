@@ -22,7 +22,7 @@ import org.json.JSONObject;
  * Represents an in-app billing purchase.
  */
 public class Purchase {
-    private final String mItemType;  // ITEM_TYPE_INAPP or ITEM_TYPE_SUBS
+    private final ItemType mItemType;
     private final String mOrderId;
     private final String mPackageName;
     private final String mSku;
@@ -34,10 +34,10 @@ public class Purchase {
     private String mOriginalJson;
 
     public Purchase(String jsonPurchaseInfo, String signature) throws JSONException {
-        this(IabConsts.ITEM_TYPE_INAPP, jsonPurchaseInfo, signature);
+        this(ItemType.INAPP, jsonPurchaseInfo, signature);
     }
 
-    public Purchase(String itemType, String jsonPurchaseInfo, String signature) throws JSONException {
+    public Purchase(ItemType itemType, String jsonPurchaseInfo, String signature) throws JSONException {
         mItemType = itemType;
         mOriginalJson = jsonPurchaseInfo;
         JSONObject o = new JSONObject(mOriginalJson);
@@ -51,7 +51,7 @@ public class Purchase {
         mSignature = signature;
     }
 
-    public String getItemType() { return mItemType; }
+    public ItemType getItemType() { return mItemType; }
     public String getOrderId() { return mOrderId; }
     public String getPackageName() { return mPackageName; }
     public String getSku() { return mSku; }
@@ -64,4 +64,5 @@ public class Purchase {
 
     @Override
     public String toString() { return "PurchaseInfo(type:" + mItemType + "):" + mOriginalJson; }
+
 }
