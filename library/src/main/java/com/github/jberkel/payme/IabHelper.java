@@ -653,7 +653,6 @@ public class IabHelper {
         return mSignatureBase64;
     }
 
-    // Workaround to bug where sometimes response codes come as Long instead of Integer
     protected int getResponseCodeFromBundle(Bundle bundle) {
         Object o;
         if (bundle == null || ((o = bundle.get(RESPONSE_CODE)) == null)) {
@@ -661,6 +660,7 @@ public class IabHelper {
             return OK.code;
         }
         else if (o instanceof Integer) return (Integer) o;
+        // Workaround to bug where sometimes response codes come as Long instead of Integer
         else if (o instanceof Long) return (int)((Long)o).longValue();
         else {
             logError("Unexpected type for bundle response code.");
