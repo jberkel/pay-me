@@ -98,8 +98,8 @@ public class IabHelperTest {
 
     @Test public void shouldStartSetup_CheckForSubscriptions_Unavailable() throws Exception {
         registerServiceWithPackageManager();
-        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(INAPP.toString()))).thenReturn(BILLING_RESPONSE_RESULT_OK.code);
-        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(SUBS.toString()))).thenReturn(BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE.code);
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq("inapp"))).thenReturn(BILLING_RESPONSE_RESULT_OK.code);
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq("subs"))).thenReturn(BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE.code);
 
         helper.startSetup(setupListener);
 
@@ -109,8 +109,8 @@ public class IabHelperTest {
 
     @Test public void shouldStartSetup_CheckForSubscriptions_Success() throws Exception {
         registerServiceWithPackageManager();
-        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(INAPP.toString()))).thenReturn(BILLING_RESPONSE_RESULT_OK.code);
-        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq(SUBS.toString()))).thenReturn(BILLING_RESPONSE_RESULT_OK.code);
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq("inapp"))).thenReturn(BILLING_RESPONSE_RESULT_OK.code);
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq("subs"))).thenReturn(BILLING_RESPONSE_RESULT_OK.code);
 
         helper.startSetup(setupListener);
 
@@ -157,7 +157,7 @@ public class IabHelperTest {
         shouldStartSetup_SuccessCase();
         Activity activity = new Activity();
         Bundle empty = new Bundle();
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", INAPP.toString(), "")).thenReturn(empty);
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", "inapp", "")).thenReturn(empty);
 
         helper.launchPurchaseFlow(activity, "sku", INAPP, 0, purchaseFinishedListener, "");
 
@@ -170,7 +170,7 @@ public class IabHelperTest {
         shouldStartSetup_SuccessCase();
         Bundle errorResponse = new Bundle();
         errorResponse.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR.code);
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", INAPP.toString(), "")).thenReturn(errorResponse);
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", "inapp", "")).thenReturn(errorResponse);
 
         helper.launchPurchaseFlow(null, "sku", INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
@@ -190,7 +190,7 @@ public class IabHelperTest {
         Bundle response = new Bundle();
         response.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(Robolectric.application, 0, new Intent(), 0));
 
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", INAPP.toString(), "")).thenReturn(response);
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", "inapp", "")).thenReturn(response);
         helper.launchPurchaseFlow(activity, "sku", INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
@@ -201,7 +201,7 @@ public class IabHelperTest {
     @Test public void shouldFailPurchaseWhenRemoteExceptionIsThrown() throws Exception {
         shouldStartSetup_SuccessCase();
 
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", INAPP.toString(), "")).thenThrow(new RemoteException());
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", "inapp", "")).thenThrow(new RemoteException());
         helper.launchPurchaseFlow(null, "sku", INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
@@ -244,7 +244,7 @@ public class IabHelperTest {
         Bundle response = new Bundle();
         response.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(Robolectric.application, 0, new Intent(), 0));
 
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", INAPP.toString(), "")).thenReturn(response);
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", "inapp", "")).thenReturn(response);
 
         Activity activity = mock(Activity.class);
         helper.launchPurchaseFlow(activity, "sku", INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
@@ -257,7 +257,7 @@ public class IabHelperTest {
         Bundle response = new Bundle();
         response.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(Robolectric.application, 0, new Intent(), 0));
 
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", SUBS.toString(), "")).thenReturn(response);
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", "subs", "")).thenReturn(response);
 
         Activity activity = mock(Activity.class);
         helper.launchSubscriptionPurchaseFlow(activity, "sku", TEST_REQUEST_CODE, purchaseFinishedListener, "");
@@ -270,7 +270,7 @@ public class IabHelperTest {
         Bundle response = new Bundle();
         response.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(Robolectric.application, 0, new Intent(), 0));
 
-        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", SUBS.toString(), "")).thenReturn(response);
+        when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", "subs", "")).thenReturn(response);
         Activity activity = mock(Activity.class);
         helper.launchSubscriptionPurchaseFlow(activity, "sku", TEST_REQUEST_CODE, purchaseFinishedListener);
         verify(activity).startIntentSenderForResult(any(IntentSender.class), eq(TEST_REQUEST_CODE), any(Intent.class), eq(0), eq(0), eq(0));
@@ -359,7 +359,7 @@ public class IabHelperTest {
 
         response.putString(INAPP_CONTINUATION_TOKEN, "");
 
-        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), INAPP.toString(), null))
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                         .thenReturn(response);
 
         Inventory inventory = helper.queryInventory(false, null ,null);
@@ -382,12 +382,12 @@ public class IabHelperTest {
         Bundle skuDetails = new Bundle();
         skuDetails.putStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST, asList("{}"));
 
-        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), INAPP.toString(), null))
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
 
         when(service.getSkuDetails(eq(API_VERSION),
                 eq(Robolectric.application.getPackageName()),
-                eq(INAPP.toString()),
+                eq("inapp"),
                 any(Bundle.class)))
            .thenReturn(skuDetails);
 
@@ -412,12 +412,12 @@ public class IabHelperTest {
         Bundle skuDetails = new Bundle();
         skuDetails.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_ERROR.code);
 
-        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), INAPP.toString(), null))
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
 
         when(service.getSkuDetails(eq(API_VERSION),
                 eq(Robolectric.application.getPackageName()),
-                eq(INAPP.toString()),
+                eq("inapp"),
                 any(Bundle.class)))
                 .thenReturn(skuDetails);
 
@@ -436,9 +436,9 @@ public class IabHelperTest {
 
         response.putString(INAPP_CONTINUATION_TOKEN, "");
 
-        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), INAPP.toString(), null))
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
-        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), SUBS.toString(), null))
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "subs", null))
                 .thenReturn(response);
 
         Inventory inventory = helper.queryInventory(false, null ,null);
@@ -451,7 +451,7 @@ public class IabHelperTest {
     @Test(expected = IabException.class) public void shouldQueryInventoryRemoteException() throws Exception {
         shouldStartSetup_SuccessCase();
 
-        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), INAPP.toString(), null))
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenThrow(new RemoteException());
 
         helper.queryInventory(false, null, null);
@@ -462,7 +462,7 @@ public class IabHelperTest {
 
         Bundle response = new Bundle();
         response.putInt(RESPONSE_CODE, BILLING_RESPONSE_RESULT_DEVELOPER_ERROR.code);
-        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), INAPP.toString(), null))
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
 
         helper.queryInventory(false, null, null);
@@ -477,7 +477,7 @@ public class IabHelperTest {
         response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("not json"));
         response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList(""));
 
-        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), INAPP.toString(), null))
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
 
         helper.queryInventory(false, null ,null);
@@ -488,7 +488,7 @@ public class IabHelperTest {
 
         Bundle response = new Bundle();
 
-        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), INAPP.toString(), null))
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
 
         helper.queryInventory(false, null ,null);
@@ -505,7 +505,7 @@ public class IabHelperTest {
 
         response.putString(INAPP_CONTINUATION_TOKEN, "");
 
-        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), INAPP.toString(), null))
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
 
         try {
