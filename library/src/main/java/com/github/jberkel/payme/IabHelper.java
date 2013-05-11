@@ -184,7 +184,7 @@ public class IabHelper {
 
                     // check for in-app billing v3 support
                     int response = mService.isBillingSupported(API_VERSION, packageName, INAPP.toString());
-                    if (response != BILLING_RESPONSE_RESULT_OK.code) {
+                    if (response != OK.code) {
                         if (listener != null) {
                             listener.onIabSetupFinished(new IabResult(response, null));
                         }
@@ -194,7 +194,7 @@ public class IabHelper {
 
                         // check for v3 subscriptions support
                         response = mService.isBillingSupported(API_VERSION, packageName, SUBS.toString());
-                        if (response == BILLING_RESPONSE_RESULT_OK.code) {
+                        if (response == OK.code) {
                             logDebug("Subscriptions AVAILABLE.");
                             mSubscriptionsSupported = true;
                         } else {
@@ -212,7 +212,7 @@ public class IabHelper {
                 }
 
                 if (listener != null) {
-                    listener.onIabSetupFinished(new IabResult(BILLING_RESPONSE_RESULT_OK));
+                    listener.onIabSetupFinished(new IabResult(OK));
                 }
             }
         };
@@ -224,7 +224,7 @@ public class IabHelper {
             // no service available to handle that Intent
             mSetupDone = true;
             if (listener != null) {
-                listener.onIabSetupFinished(new IabResult(BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE));
+                listener.onIabSetupFinished(new IabResult(UNAVAILABLE));
             }
         }
     }
@@ -327,7 +327,7 @@ public class IabHelper {
             logDebug("Constructing buy intent for " + sku + ", item type: " + itemType);
             Bundle buyIntentBundle = mService.getBuyIntent(API_VERSION, mContext.getPackageName(), sku, itemType.toString(), extraData);
             int response = getResponseCodeFromBundle(buyIntentBundle);
-            if (response != BILLING_RESPONSE_RESULT_OK.code) {
+            if (response != OK.code) {
                 logError("Unable to buy item, Error response: " + getDescription(response));
                 flagEndAsync();
                 result = new IabResult(response, "Unable to buy item");
@@ -396,7 +396,7 @@ public class IabHelper {
         String purchaseData = data.getStringExtra(RESPONSE_INAPP_PURCHASE_DATA);
         String dataSignature = data.getStringExtra(RESPONSE_INAPP_SIGNATURE);
 
-        if (resultCode == Activity.RESULT_OK && responseCode == BILLING_RESPONSE_RESULT_OK.code) {
+        if (resultCode == Activity.RESULT_OK && responseCode == OK.code) {
             logDebug("Successful resultcode from purchase activity.");
             logDebug("Purchase data: " + purchaseData);
             logDebug("Data signature: " + dataSignature);
@@ -434,7 +434,7 @@ public class IabHelper {
             }
 
             if (mPurchaseListener != null) {
-                mPurchaseListener.onIabPurchaseFinished(new IabResult(BILLING_RESPONSE_RESULT_OK), purchase);
+                mPurchaseListener.onIabPurchaseFinished(new IabResult(OK), purchase);
             }
         }
         else if (resultCode == Activity.RESULT_OK) {
@@ -484,13 +484,13 @@ public class IabHelper {
         try {
             Inventory inv = new Inventory();
             int r = queryPurchases(inv, INAPP);
-            if (r != BILLING_RESPONSE_RESULT_OK.code) {
+            if (r != OK.code) {
                 throw new IabException(r, "Error refreshing inventory (querying owned items).");
             }
 
             if (querySkuDetails) {
                 r = querySkuDetails(INAPP, inv, moreItemSkus);
-                if (r != BILLING_RESPONSE_RESULT_OK.code) {
+                if (r != OK.code) {
                     throw new IabException(r, "Error refreshing inventory (querying prices of items).");
                 }
             }
@@ -498,13 +498,13 @@ public class IabHelper {
             // if subscriptions are supported, then also query for subscriptions
             if (mSubscriptionsSupported) {
                 r = queryPurchases(inv, SUBS);
-                if (r != BILLING_RESPONSE_RESULT_OK.code) {
+                if (r != OK.code) {
                     throw new IabException(r, "Error refreshing inventory (querying owned subscriptions).");
                 }
 
                 if (querySkuDetails) {
                     r = querySkuDetails(SUBS, inv, moreItemSkus);
-                    if (r != BILLING_RESPONSE_RESULT_OK.code) {
+                    if (r != OK.code) {
                         throw new IabException(r, "Error refreshing inventory (querying prices of subscriptions).");
                     }
                 }
@@ -540,7 +540,7 @@ public class IabHelper {
         flagStartAsync("refresh inventory");
         (new Thread(new Runnable() {
             public void run() {
-                IabResult result = new IabResult(BILLING_RESPONSE_RESULT_OK);
+                IabResult result = new IabResult(OK);
                 Inventory inv = null;
                 try {
                     inv = queryInventory(querySkuDetails, moreSkus);
@@ -602,7 +602,7 @@ public class IabHelper {
 
             logDebug("Consuming sku: " + sku + ", token: " + token);
             int response = mService.consumePurchase(API_VERSION, mContext.getPackageName(), token);
-            if (response == BILLING_RESPONSE_RESULT_OK.code) {
+            if (response == OK.code) {
                logDebug("Successfully consumed sku: " + sku);
             } else {
                 logDebug("Error consuming consuming sku " + sku + ". " + getDescription(response));
@@ -658,7 +658,7 @@ public class IabHelper {
         Object o;
         if (bundle == null || ((o = bundle.get(RESPONSE_CODE)) == null)) {
             logDebug("Bundle with null response code, assuming OK (known issue)");
-            return BILLING_RESPONSE_RESULT_OK.code;
+            return OK.code;
         }
         else if (o instanceof Integer) return (Integer) o;
         else if (o instanceof Long) return (int)((Long)o).longValue();
@@ -698,7 +698,7 @@ public class IabHelper {
 
             int response = getResponseCodeFromBundle(ownedItems);
             logDebug("Owned items response: " + String.valueOf(response));
-            if (response != BILLING_RESPONSE_RESULT_OK.code) {
+            if (response != OK.code) {
                 logDebug("getPurchases() failed: " + getDescription(response));
                 return response;
             }
@@ -744,7 +744,7 @@ public class IabHelper {
             logDebug("Continuation token: " + continueToken);
         } while (!TextUtils.isEmpty(continueToken));
 
-        return verificationFailed ? IABHELPER_VERIFICATION_FAILED.code : BILLING_RESPONSE_RESULT_OK.code;
+        return verificationFailed ? IABHELPER_VERIFICATION_FAILED.code : OK.code;
     }
 
     private int querySkuDetails(ItemType itemType, Inventory inv, @Nullable List<String> moreSkus)
@@ -762,7 +762,7 @@ public class IabHelper {
 
         if (skuList.size() == 0) {
             logDebug("queryPrices: nothing to do because there are no SKUs.");
-            return BILLING_RESPONSE_RESULT_OK.code;
+            return OK.code;
         }
 
         Bundle querySkus = new Bundle();
@@ -772,7 +772,7 @@ public class IabHelper {
 
         if (!skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
             int response = getResponseCodeFromBundle(skuDetails);
-            if (response != BILLING_RESPONSE_RESULT_OK.code) {
+            if (response != OK.code) {
                 logDebug("getSkuDetails() failed: " + getDescription(response));
                 return response;
             } else {
@@ -789,7 +789,7 @@ public class IabHelper {
             logDebug("Got sku details: " + d);
             inv.addSkuDetails(d);
         }
-        return BILLING_RESPONSE_RESULT_OK.code;
+        return OK.code;
     }
 
 
@@ -804,7 +804,7 @@ public class IabHelper {
                 for (Purchase purchase : purchases) {
                     try {
                         consume(purchase);
-                        results.add(new IabResult(BILLING_RESPONSE_RESULT_OK, "Successful consume of sku " + purchase.getSku()));
+                        results.add(new IabResult(OK, "Successful consume of sku " + purchase.getSku()));
                     }
                     catch (IabException ex) {
                         results.add(ex.getResult());

@@ -53,7 +53,7 @@ public class IabResult {
     }
 
     public boolean isSuccess() {
-        return mResponse == Response.BILLING_RESPONSE_RESULT_OK;
+        return mResponse == Response.OK;
     }
 
     public boolean isFailure() {

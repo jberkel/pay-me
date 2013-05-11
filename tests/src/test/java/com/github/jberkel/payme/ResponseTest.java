@@ -18,7 +18,7 @@ public class ResponseTest {
 
     @Test
     public void shouldMapCodeToConstant() throws Exception {
-        assertThat(Response.fromCode(0)).isEqualTo(Response.BILLING_RESPONSE_RESULT_OK);
+        assertThat(Response.fromCode(0)).isEqualTo(Response.OK);
         assertThat(Response.fromCode(99999)).isEqualTo(Response.IABHELPER_UNKNOWN_ERROR);
     }
 }

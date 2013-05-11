@@ -1,16 +1,15 @@
 package com.github.jberkel.payme;
 
 enum Response {
-    BILLING_RESPONSE_RESULT_OK(0, "OK"),
-    BILLING_RESPONSE_RESULT_USER_CANCELED(1, "User Canceled"),
-    BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE(3, "Billing Unavailable"),
-    BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE(4, "Item Unavailable"),
-    BILLING_RESPONSE_RESULT_DEVELOPER_ERROR(5, "Developer Error"),
-    BILLING_RESPONSE_RESULT_ERROR(6, "Error"),
-    BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED(7, "Item Already Owned"),
-    BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED(8, "Item not owned"),
+    OK(0, "OK"),
+    USER_CANCELED(1, "User Canceled"),
+    UNAVAILABLE(3, "Billing Unavailable"),
+    ITEM_UNAVAILABLE(4, "Item Unavailable"),
+    DEVELOPER_ERROR(5, "Developer Error"),
+    ERROR(6, "Error"),
+    ITEM_ALREADY_OWNED(7, "Item Already Owned"),
+    ITEM_NOT_OWNED(8, "Item not owned"),
 
-    IABHELPER_ERROR_BASE(-1000, ""),
     IABHELPER_REMOTE_EXCEPTION(-1001, "Remote exception during initialization"),
     IABHELPER_BAD_RESPONSE(-1002, "Bad response received"),
     IABHELPER_VERIFICATION_FAILED(-1003, "Purchase signature verification failed"),
