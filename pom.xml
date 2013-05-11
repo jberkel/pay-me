@@ -69,4 +69,23 @@
         </dependencies>
     </dependencyManagement>
 
+
+    <ciManagement>
+        <system>travis</system>
+        <url>https://travis-ci.org/jberkel/pay-me</url>
+    </ciManagement>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/jberkel/pay-me</url>
+        <connection>scm:git:https://github.com/jberkel/pay-me.git</connection>
+        <developerConnection>scm:git:git@github.com:jberkel/pay-me.git</developerConnection>
+    </scm>
 </project>
