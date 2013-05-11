@@ -33,7 +33,7 @@
                 <extensions>true</extensions>
             </plugin>
 
-            <!-- https://code.google.com/p/maven-android-plugin/issues/detail?id=139 -->
+            <!-- workaround for https://code.google.com/p/maven-android-plugin/issues/detail?id=139 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -55,6 +55,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>com.electriccloud</groupId>
                 <artifactId>javac2-maven-plugin</artifactId>
@@ -92,4 +93,13 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <pluginRepositories>
+        <!-- needed for com.electriccloud.javac2-maven-plugin -->
+        <pluginRepository>
+            <id>zegoggles-releases</id>
+            <name>zeoggles releases</name>
+            <url>http://zegoggl.es:8081/nexus/content/repositories/releases/</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

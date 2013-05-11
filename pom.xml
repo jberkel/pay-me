@@ -44,14 +44,6 @@
         <module>example</module>
     </modules>
 
-    <pluginRepositories>
-      <pluginRepository>
-          <id>zegoggles-releases</id>
-          <name>zeoggles releases</name>
-          <url>http://zegoggl.es:8081/nexus/content/repositories/releases/</url>
-      </pluginRepository>
-    </pluginRepositories>
-
     <distributionManagement>
       <snapshotRepository>
         <uniqueVersion>true</uniqueVersion>
