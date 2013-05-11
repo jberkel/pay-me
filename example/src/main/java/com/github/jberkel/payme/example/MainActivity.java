@@ -26,13 +26,13 @@ import android.widget.ImageView;
 
 import com.github.jberkel.payme.IabHelper;
 import com.github.jberkel.payme.IabResult;
-import com.github.jberkel.payme.Inventory;
-import com.github.jberkel.payme.ItemType;
-import com.github.jberkel.payme.OnConsumeFinishedListener;
-import com.github.jberkel.payme.OnIabPurchaseFinishedListener;
-import com.github.jberkel.payme.OnIabSetupFinishedListener;
-import com.github.jberkel.payme.Purchase;
-import com.github.jberkel.payme.QueryInventoryFinishedListener;
+import com.github.jberkel.payme.model.Inventory;
+import com.github.jberkel.payme.model.ItemType;
+import com.github.jberkel.payme.listener.OnConsumeFinishedListener;
+import com.github.jberkel.payme.listener.OnIabPurchaseFinishedListener;
+import com.github.jberkel.payme.listener.OnIabSetupFinishedListener;
+import com.github.jberkel.payme.model.Purchase;
+import com.github.jberkel.payme.listener.QueryInventoryFinishedListener;
 
 
 /**

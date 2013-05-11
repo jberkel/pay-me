@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.github.jberkel.payme;
+package com.github.jberkel.payme.model;
 
 import org.json.JSONException;
 import org.json.JSONObject;

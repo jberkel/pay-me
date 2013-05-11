@@ -1,6 +1,8 @@
-package com.github.jberkel.payme;
+package com.github.jberkel.payme.model;
 
 
+import com.github.jberkel.payme.model.Inventory;
+import com.github.jberkel.payme.model.Purchase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;

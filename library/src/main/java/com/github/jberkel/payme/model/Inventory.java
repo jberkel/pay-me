@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.github.jberkel.payme;
+package com.github.jberkel.payme.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,13 +23,13 @@ import java.util.Map;
 
 /**
  * Represents a block of information about in-app items.
- * An Inventory is returned by such methods as {@link IabHelper#queryInventory}.
+ * An Inventory is returned by such methods as {@link com.github.jberkel.payme.IabHelper#queryInventory}.
  */
 public class Inventory {
     private final Map<String,SkuDetails> mSkuMap = new HashMap<String,SkuDetails>();
     private final Map<String,Purchase> mPurchaseMap = new HashMap<String,Purchase>();
 
-    Inventory() { }
+    public Inventory() { }
 
     /** Returns the listing details for an in-app product. */
     public SkuDetails getSkuDetails(String sku) {
@@ -68,12 +68,12 @@ public class Inventory {
     }
 
     /** Returns a list of all owned product IDs. */
-    List<String> getAllOwnedSkus() {
+    public List<String> getAllOwnedSkus() {
         return new ArrayList<String>(mPurchaseMap.keySet());
     }
 
     /** Returns a list of all owned product IDs of a given type */
-    List<String> getAllOwnedSkus(ItemType itemType) {
+    public List<String> getAllOwnedSkus(ItemType itemType) {
         List<String> result = new ArrayList<String>();
         for (Purchase p : mPurchaseMap.values()) {
             if (p.getItemType() == itemType) result.add(p.getSku());
@@ -82,15 +82,15 @@ public class Inventory {
     }
 
     /** Returns a list of all purchases. */
-    List<Purchase> getAllPurchases() {
+    public  List<Purchase> getAllPurchases() {
         return new ArrayList<Purchase>(mPurchaseMap.values());
     }
 
-    void addSkuDetails(SkuDetails d) {
+    public void addSkuDetails(SkuDetails d) {
         mSkuMap.put(d.getSku(), d);
     }
 
-    void addPurchase(Purchase p) {
+    public void addPurchase(Purchase p) {
         mPurchaseMap.put(p.getSku(), p);
     }
 }

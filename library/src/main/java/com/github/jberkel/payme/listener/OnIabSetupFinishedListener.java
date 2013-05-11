@@ -1,4 +1,6 @@
-package com.github.jberkel.payme;
+package com.github.jberkel.payme.listener;
+
+import com.github.jberkel.payme.IabResult;
 
 /**
  * Callback for setup process. This listener's {@link #onIabSetupFinished} method is called

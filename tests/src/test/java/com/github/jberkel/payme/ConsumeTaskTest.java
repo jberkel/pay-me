@@ -1,5 +1,8 @@
 package com.github.jberkel.payme;
 
+import com.github.jberkel.payme.listener.OnConsumeFinishedListener;
+import com.github.jberkel.payme.listener.OnConsumeMultiFinishedListener;
+import com.github.jberkel.payme.model.Purchase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,8 +20,10 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(RobolectricTestRunner.class)
 public class ConsumeTaskTest {
-    @Mock OnConsumeFinishedListener consumeFinishedListener;
-    @Mock OnConsumeMultiFinishedListener consumeMultiFinishedListener;
+    @Mock
+    OnConsumeFinishedListener consumeFinishedListener;
+    @Mock
+    OnConsumeMultiFinishedListener consumeMultiFinishedListener;
     @Mock IabHelper iabHelper;
     ConsumeTask task;
 

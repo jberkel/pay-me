@@ -1,4 +1,7 @@
-package com.github.jberkel.payme;
+package com.github.jberkel.payme.listener;
+
+import com.github.jberkel.payme.IabResult;
+import com.github.jberkel.payme.model.Purchase;
 
 import java.util.List;
 

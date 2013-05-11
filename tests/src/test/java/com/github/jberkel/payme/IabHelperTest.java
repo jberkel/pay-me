@@ -11,6 +11,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import com.android.vending.billing.IInAppBillingService;
+import com.github.jberkel.payme.listener.OnConsumeFinishedListener;
+import com.github.jberkel.payme.listener.OnIabPurchaseFinishedListener;
+import com.github.jberkel.payme.listener.OnIabSetupFinishedListener;
+import com.github.jberkel.payme.listener.QueryInventoryFinishedListener;
+import com.github.jberkel.payme.model.Inventory;
+import com.github.jberkel.payme.model.Purchase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,8 +34,8 @@ import java.util.List;
 
 import static com.github.jberkel.payme.IabConsts.*;
 import static com.github.jberkel.payme.IabHelper.API_VERSION;
-import static com.github.jberkel.payme.ItemType.INAPP;
-import static com.github.jberkel.payme.ItemType.SUBS;
+import static com.github.jberkel.payme.model.ItemType.INAPP;
+import static com.github.jberkel.payme.model.ItemType.SUBS;
 import static com.github.jberkel.payme.Response.*;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
@@ -44,7 +50,7 @@ public class IabHelperTest {
 
     @Mock private IInAppBillingService service;
     @Mock private OnIabSetupFinishedListener setupListener;
-    @Mock private  OnIabPurchaseFinishedListener purchaseFinishedListener;
+    @Mock private OnIabPurchaseFinishedListener purchaseFinishedListener;
 
 
     private IabHelper helper;

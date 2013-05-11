@@ -1,6 +1,8 @@
 package com.github.jberkel.payme;
 
 import android.os.AsyncTask;
+import com.github.jberkel.payme.listener.QueryInventoryFinishedListener;
+import com.github.jberkel.payme.model.Inventory;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

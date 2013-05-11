@@ -1,4 +1,4 @@
-package com.github.jberkel.payme;
+package com.github.jberkel.payme.model;
 
 import java.util.Locale;
 

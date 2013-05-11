@@ -28,6 +28,15 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 import com.android.vending.billing.IInAppBillingService;
+import com.github.jberkel.payme.listener.OnConsumeFinishedListener;
+import com.github.jberkel.payme.listener.OnConsumeMultiFinishedListener;
+import com.github.jberkel.payme.listener.OnIabPurchaseFinishedListener;
+import com.github.jberkel.payme.listener.OnIabSetupFinishedListener;
+import com.github.jberkel.payme.listener.QueryInventoryFinishedListener;
+import com.github.jberkel.payme.model.Inventory;
+import com.github.jberkel.payme.model.ItemType;
+import com.github.jberkel.payme.model.Purchase;
+import com.github.jberkel.payme.model.SkuDetails;
 import com.github.jberkel.payme.security.DefaultSignatureValidator;
 import com.github.jberkel.payme.security.SignatureValidator;
 import org.jetbrains.annotations.Nullable;
@@ -37,8 +46,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.jberkel.payme.IabConsts.*;
-import static com.github.jberkel.payme.ItemType.INAPP;
-import static com.github.jberkel.payme.ItemType.SUBS;
+import static com.github.jberkel.payme.model.ItemType.INAPP;
+import static com.github.jberkel.payme.model.ItemType.SUBS;
 import static com.github.jberkel.payme.Response.*;
 
 /**
@@ -106,7 +115,8 @@ public class IabHelper {
     private ItemType mPurchasingItemType;
 
     // The listener registered on launchPurchaseFlow, which we have to call back when the purchase finishes
-    private @Nullable OnIabPurchaseFinishedListener mPurchaseListener;
+    private @Nullable
+    OnIabPurchaseFinishedListener mPurchaseListener;
 
     private SignatureValidator mSignatureValidator;
 
@@ -466,7 +476,7 @@ public class IabHelper {
     /**
      * Queries the inventory. This will query all owned items from the server, as well as
      * information on additional skus, if specified. This method may block or take long to execute.
-     * Do not call from a UI thread. For that, use the non-blocking version {@link #queryInventoryAsync(boolean, List, QueryInventoryFinishedListener)}.
+     * Do not call from a UI thread. For that, use the non-blocking version {@link #queryInventoryAsync(boolean, List, com.github.jberkel.payme.listener.QueryInventoryFinishedListener)}.
      *
      * @param querySkuDetails if true, SKU details (price, description, etc) will be queried as well
      *     as purchase information.

@@ -1,5 +1,7 @@
 package com.github.jberkel.payme;
 
+import com.github.jberkel.payme.listener.QueryInventoryFinishedListener;
+import com.github.jberkel.payme.model.Inventory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +16,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 @RunWith(RobolectricTestRunner.class)
 public class QueryInventoryTaskTest {
     @Mock IabHelper iabHelper;
-    @Mock QueryInventoryFinishedListener listener;
+    @Mock
+    QueryInventoryFinishedListener listener;
 
     QueryInventoryTask task;
 

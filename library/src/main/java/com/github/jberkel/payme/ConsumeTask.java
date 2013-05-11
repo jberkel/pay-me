@@ -1,6 +1,9 @@
 package com.github.jberkel.payme;
 
 import android.os.AsyncTask;
+import com.github.jberkel.payme.listener.OnConsumeFinishedListener;
+import com.github.jberkel.payme.listener.OnConsumeMultiFinishedListener;
+import com.github.jberkel.payme.model.Purchase;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

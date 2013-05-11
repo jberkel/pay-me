@@ -1,4 +1,7 @@
-package com.github.jberkel.payme;
+package com.github.jberkel.payme.listener;
+
+import com.github.jberkel.payme.IabResult;
+import com.github.jberkel.payme.model.Inventory;
 
 /**
  * Listener that notifies when an inventory query operation completes.
