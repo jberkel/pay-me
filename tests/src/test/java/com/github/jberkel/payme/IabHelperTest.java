@@ -83,15 +83,15 @@ public class IabHelperTest {
 
     @Test public void shouldStartSetup_BillingServiceDoesNotExist() throws Exception {
         helper.startSetup(setupListener);
-        verify(setupListener).onIabSetupFinished(new IabResult(UNAVAILABLE));
+        verify(setupListener).onIabSetupFinished(new IabResult(BILLING_UNAVAILABLE));
     }
 
     @Test public void shouldStartSetup_ServiceDoesNotSupportBilling() throws Exception {
         registerServiceWithPackageManager();
-        when(service.isBillingSupported(eq(API_VERSION), anyString(), anyString())).thenReturn(UNAVAILABLE.code);
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), anyString())).thenReturn(BILLING_UNAVAILABLE.code);
 
         helper.startSetup(setupListener);
-        verify(setupListener).onIabSetupFinished(new IabResult(UNAVAILABLE));
+        verify(setupListener).onIabSetupFinished(new IabResult(BILLING_UNAVAILABLE));
 
         assertThat(helper.subscriptionsSupported()).isFalse();
     }
@@ -99,7 +99,7 @@ public class IabHelperTest {
     @Test public void shouldStartSetup_CheckForSubscriptions_Unavailable() throws Exception {
         registerServiceWithPackageManager();
         when(service.isBillingSupported(eq(API_VERSION), anyString(), eq("inapp"))).thenReturn(OK.code);
-        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq("subs"))).thenReturn(UNAVAILABLE.code);
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), eq("subs"))).thenReturn(BILLING_UNAVAILABLE.code);
 
         helper.startSetup(setupListener);
 
@@ -215,7 +215,7 @@ public class IabHelperTest {
         helper.launchPurchaseFlow(null, "sku", INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
-                new IabResult(IABHELPER_BILLING_NOT_AVAILABLE),
+                new IabResult(BILLING_UNAVAILABLE),
                 null);
     }
 
@@ -225,7 +225,7 @@ public class IabHelperTest {
         helper.launchPurchaseFlow(null, "sku", INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
-                new IabResult(IABHELPER_BILLING_NOT_AVAILABLE),
+                new IabResult(BILLING_UNAVAILABLE),
                 null);
     }
 

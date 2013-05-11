@@ -224,7 +224,7 @@ public class IabHelper {
             // no service available to handle that Intent
             mSetupDone = true;
             if (listener != null) {
-                listener.onIabSetupFinished(new IabResult(UNAVAILABLE));
+                listener.onIabSetupFinished(new IabResult(BILLING_UNAVAILABLE));
             }
         }
     }
@@ -314,7 +314,7 @@ public class IabHelper {
             flagEndAsync();
             if (listener != null) {
                 if (itemType == INAPP) {
-                    result = new IabResult(IABHELPER_BILLING_NOT_AVAILABLE);
+                    result = new IabResult(BILLING_UNAVAILABLE);
                 } else {
                     result = new IabResult(IABHELPER_SUBSCRIPTIONS_NOT_AVAILABLE);
                 }

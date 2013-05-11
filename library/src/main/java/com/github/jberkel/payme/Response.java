@@ -3,7 +3,7 @@ package com.github.jberkel.payme;
 enum Response {
     OK(0, "OK"),
     USER_CANCELED(1, "User Canceled"),
-    UNAVAILABLE(3, "Billing Unavailable"),
+    BILLING_UNAVAILABLE(3, "Billing Unavailable"),
     ITEM_UNAVAILABLE(4, "Item Unavailable"),
     DEVELOPER_ERROR(5, "Developer Error"),
     ERROR(6, "Error"),
@@ -19,8 +19,7 @@ enum Response {
     IABHELPER_MISSING_TOKEN(-1007, "Missing token"),
     IABHELPER_UNKNOWN_ERROR(-1008, "Unknown error"),
     IABHELPER_SUBSCRIPTIONS_NOT_AVAILABLE(-1009, "Subscriptions not available"),
-    IABHELPER_INVALID_CONSUMPTION(-1010, "Invalid consumption attempt"),
-    IABHELPER_BILLING_NOT_AVAILABLE(-1011, "Billing not available");
+    IABHELPER_INVALID_CONSUMPTION(-1010, "Invalid consumption attempt");
 
     public final int code;
     public final String description;
