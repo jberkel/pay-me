@@ -38,7 +38,7 @@ enum Response {
         return IABHELPER_UNKNOWN_ERROR;
     }
 
-    public static String getResponseDesc(int code) {
+    public static String getDescription(int code) {
         return fromCode(code).description;
     }
 }

@@ -328,7 +328,7 @@ public class IabHelper {
             Bundle buyIntentBundle = mService.getBuyIntent(API_VERSION, mContext.getPackageName(), sku, itemType.toString(), extraData);
             int response = getResponseCodeFromBundle(buyIntentBundle);
             if (response != BILLING_RESPONSE_RESULT_OK.code) {
-                logError("Unable to buy item, Error response: " + getResponseDesc(response));
+                logError("Unable to buy item, Error response: " + getDescription(response));
                 flagEndAsync();
                 result = new IabResult(response, "Unable to buy item");
                 if (listener != null) listener.onIabPurchaseFinished(result, null);
@@ -439,20 +439,20 @@ public class IabHelper {
         }
         else if (resultCode == Activity.RESULT_OK) {
             // result code was OK, but in-app billing response was not OK.
-            logDebug("Result code was OK but in-app billing response was not OK: " + getResponseDesc(responseCode));
+            logDebug("Result code was OK but in-app billing response was not OK: " + getDescription(responseCode));
             if (mPurchaseListener != null) {
                 result = new IabResult(responseCode, "Problem purchashing item.");
                 mPurchaseListener.onIabPurchaseFinished(result, null);
             }
         }
         else if (resultCode == Activity.RESULT_CANCELED) {
-            logDebug("Purchase canceled - Response: " + getResponseDesc(responseCode));
+            logDebug("Purchase canceled - Response: " + getDescription(responseCode));
             result = new IabResult(IABHELPER_USER_CANCELLED);
             if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
         }
         else {
             logError("Purchase failed. Result code: " + Integer.toString(resultCode)
-                    + ". Response: " + getResponseDesc(responseCode));
+                    + ". Response: " + getDescription(responseCode));
             result = new IabResult(IABHELPER_UNKNOWN_PURCHASE_RESPONSE);
             if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
         }
@@ -605,7 +605,7 @@ public class IabHelper {
             if (response == BILLING_RESPONSE_RESULT_OK.code) {
                logDebug("Successfully consumed sku: " + sku);
             } else {
-                logDebug("Error consuming consuming sku " + sku + ". " + getResponseDesc(response));
+                logDebug("Error consuming consuming sku " + sku + ". " + getDescription(response));
                throw new IabException(response, "Error consuming sku " + sku);
             }
         }
@@ -699,7 +699,7 @@ public class IabHelper {
             int response = getResponseCodeFromBundle(ownedItems);
             logDebug("Owned items response: " + String.valueOf(response));
             if (response != BILLING_RESPONSE_RESULT_OK.code) {
-                logDebug("getPurchases() failed: " + getResponseDesc(response));
+                logDebug("getPurchases() failed: " + getDescription(response));
                 return response;
             }
             if (!ownedItems.containsKey(RESPONSE_INAPP_ITEM_LIST)
@@ -773,7 +773,7 @@ public class IabHelper {
         if (!skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
             int response = getResponseCodeFromBundle(skuDetails);
             if (response != BILLING_RESPONSE_RESULT_OK.code) {
-                logDebug("getSkuDetails() failed: " + getResponseDesc(response));
+                logDebug("getSkuDetails() failed: " + getDescription(response));
                 return response;
             } else {
                 logError("getSkuDetails() returned a bundle with neither an error nor a detail list.");
