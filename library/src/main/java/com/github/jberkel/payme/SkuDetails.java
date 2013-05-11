@@ -35,6 +35,8 @@ public class SkuDetails {
     }
 
     public SkuDetails(ItemType itemType, String jsonSkuDetails) throws JSONException {
+        if (itemType == null) throw new IllegalArgumentException("itemType cannot be null");
+
         mItemType = itemType;
         mJson = jsonSkuDetails;
         JSONObject o = new JSONObject(mJson);

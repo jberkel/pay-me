@@ -26,4 +26,9 @@ public class SkuDetailsTest {
     public void shouldThrowErrorOnInvalidJson() throws Exception {
         new SkuDetails("");
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAcceptNullItemType() throws Exception {
+        new SkuDetails(null, "{}");
+    }
 }
