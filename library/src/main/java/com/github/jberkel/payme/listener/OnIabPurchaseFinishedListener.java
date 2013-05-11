@@ -14,7 +14,7 @@ public interface OnIabPurchaseFinishedListener {
      * process went.
      *
      * @param result The result of the purchase.
-     * @param info The purchase information (null if purchase failed)
+     * @param purchase The purchase information (null if purchase failed)
      */
-    public void onIabPurchaseFinished(IabResult result, Purchase info);
+    public void onIabPurchaseFinished(IabResult result, Purchase purchase);
 }

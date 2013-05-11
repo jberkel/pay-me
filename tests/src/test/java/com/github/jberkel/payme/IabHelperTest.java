@@ -17,6 +17,7 @@ import com.github.jberkel.payme.listener.OnIabSetupFinishedListener;
 import com.github.jberkel.payme.listener.QueryInventoryFinishedListener;
 import com.github.jberkel.payme.model.Inventory;
 import com.github.jberkel.payme.model.Purchase;
+import com.github.jberkel.payme.security.SignatureValidator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,9 +35,9 @@ import java.util.List;
 
 import static com.github.jberkel.payme.IabConsts.*;
 import static com.github.jberkel.payme.IabHelper.API_VERSION;
+import static com.github.jberkel.payme.Response.*;
 import static com.github.jberkel.payme.model.ItemType.INAPP;
 import static com.github.jberkel.payme.model.ItemType.SUBS;
-import static com.github.jberkel.payme.Response.*;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
 import static org.mockito.Matchers.any;
@@ -351,6 +352,22 @@ public class IabHelperTest {
 
         assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, 23, data)).isTrue();
         verify(purchaseFinishedListener).onIabPurchaseFinished(new IabResult(IABHELPER_UNKNOWN_PURCHASE_RESPONSE), null);
+    }
+
+    @Test public void shouldHandleInvalidSignature() throws Exception {
+        shouldStartIntentAfterSuccessfulLaunchPurchase();
+        SignatureValidator failing = mock(SignatureValidator.class);
+        when(failing.validate("{}", "some signature")).thenReturn(Boolean.FALSE);
+        helper.setSignatureValidator(failing);
+
+        Intent data = new Intent();
+        data.putExtra(RESPONSE_CODE, OK.code);
+        data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, "{}");
+        data.putExtra(RESPONSE_INAPP_SIGNATURE, "some signature");
+
+        assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, Activity.RESULT_OK, data)).isTrue();
+        verify(purchaseFinishedListener).onIabPurchaseFinished(
+                eq(new IabResult(IABHELPER_VERIFICATION_FAILED)), any(Purchase.class));
     }
 
     // inventory

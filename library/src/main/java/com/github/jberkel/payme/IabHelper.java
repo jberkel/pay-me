@@ -798,4 +798,9 @@ public class IabHelper {
     private void logWarn(String msg) {
         Log.w(mDebugTag, "In-app billing warning: " + msg);
     }
+
+    protected void setSignatureValidator(SignatureValidator validator) {
+        if (validator == null) throw new IllegalArgumentException("need non-null validator");
+        mSignatureValidator = validator;
+    }
 }

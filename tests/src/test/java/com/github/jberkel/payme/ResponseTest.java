@@ -15,7 +15,6 @@ public class ResponseTest {
         assertThat(Response.getDescription(99999)).isEqualTo("Unknown error");
     }
 
-
     @Test
     public void shouldMapCodeToConstant() throws Exception {
         assertThat(Response.fromCode(0)).isEqualTo(Response.OK);
