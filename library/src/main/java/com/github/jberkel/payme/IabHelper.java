@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -520,7 +519,6 @@ public class IabHelper {
         }
     }
 
-
     /**
      * Asynchronous wrapper for inventory query. This will perform an inventory
      * query as described in {@link #queryInventory}, but will do so asynchronously
@@ -534,34 +532,9 @@ public class IabHelper {
     public void queryInventoryAsync(final boolean querySkuDetails,
                                final List<String> moreSkus,
                                final @Nullable QueryInventoryFinishedListener listener) {
-        final Handler handler = new Handler();
         checkNotDisposed();
         checkSetupDone("queryInventory");
-        flagStartAsync("refresh inventory");
-        (new Thread(new Runnable() {
-            public void run() {
-                IabResult result = new IabResult(OK);
-                Inventory inv = null;
-                try {
-                    inv = queryInventory(querySkuDetails, moreSkus);
-                }
-                catch (IabException ex) {
-                    result = ex.getResult();
-                }
-
-                flagEndAsync();
-
-                final IabResult result_f = result;
-                final Inventory inv_f = inv;
-                if (!mDisposed && listener != null) {
-                    handler.post(new Runnable() {
-                        public void run() {
-                            listener.onQueryInventoryFinished(result_f, inv_f);
-                        }
-                    });
-                }
-            }
-        })).start();
+        new QueryInventoryTask(this, listener).execute(new QueryInventoryTask.QueryArgs(querySkuDetails, moreSkus));
     }
 
     public void queryInventoryAsync(QueryInventoryFinishedListener listener) {
@@ -590,7 +563,6 @@ public class IabHelper {
             throw new IabException(IABHELPER_INVALID_CONSUMPTION,
                     "Items of type '" + itemInfo.getItemType() + "' can't be consumed.");
         }
-
         try {
             String token = itemInfo.getToken();
             String sku = itemInfo.getSku();
@@ -669,7 +641,7 @@ public class IabHelper {
         }
     }
 
-    private void flagStartAsync(String operation) {
+    protected void flagStartAsync(String operation) {
         if (mAsyncInProgress) throw new IllegalStateException("Can't start async operation (" +
                 operation + ") because another async operation(" + mAsyncOperation + ") is in progress.");
         mAsyncOperation = operation;
@@ -677,10 +649,14 @@ public class IabHelper {
         logDebug("Starting async operation: " + operation);
     }
 
-    private void flagEndAsync() {
+    protected void flagEndAsync() {
         logDebug("Ending async operation: " + mAsyncOperation);
         mAsyncOperation = "";
         mAsyncInProgress = false;
+    }
+
+    protected boolean isDisposed() {
+        return mDisposed;
     }
 
 
@@ -702,7 +678,8 @@ public class IabHelper {
                 logDebug("getPurchases() failed: " + getDescription(response));
                 return response;
             }
-            if (!ownedItems.containsKey(RESPONSE_INAPP_ITEM_LIST)
+            if (ownedItems == null
+                    || !ownedItems.containsKey(RESPONSE_INAPP_ITEM_LIST)
                     || !ownedItems.containsKey(RESPONSE_INAPP_PURCHASE_DATA_LIST)
                     || !ownedItems.containsKey(RESPONSE_INAPP_SIGNATURE_LIST)) {
                 logError("Bundle returned from getPurchases() doesn't contain required fields.");
@@ -793,41 +770,10 @@ public class IabHelper {
     }
 
 
-    private void consumeAsyncInternal(final List<Purchase> purchases,
+    private ConsumeTask consumeAsyncInternal(final List<Purchase> purchases,
                               final @Nullable OnConsumeFinishedListener singleListener,
                               final @Nullable OnConsumeMultiFinishedListener multiListener) {
-        final Handler handler = new Handler();
-        flagStartAsync("consume");
-        (new Thread(new Runnable() {
-            public void run() {
-                final List<IabResult> results = new ArrayList<IabResult>();
-                for (Purchase purchase : purchases) {
-                    try {
-                        consume(purchase);
-                        results.add(new IabResult(OK, "Successful consume of sku " + purchase.getSku()));
-                    }
-                    catch (IabException ex) {
-                        results.add(ex.getResult());
-                    }
-                }
-
-                flagEndAsync();
-                if (!mDisposed && singleListener != null) {
-                    handler.post(new Runnable() {
-                        public void run() {
-                            singleListener.onConsumeFinished(purchases.get(0), results.get(0));
-                        }
-                    });
-                }
-                if (!mDisposed && multiListener != null) {
-                    handler.post(new Runnable() {
-                        public void run() {
-                            multiListener.onConsumeMultiFinished(purchases, results);
-                        }
-                    });
-                }
-            }
-        })).start();
+        return (ConsumeTask) new ConsumeTask(this, singleListener, multiListener).execute(purchases.toArray(new Purchase[purchases.size()]));
     }
 
     private void logDebug(String msg) {

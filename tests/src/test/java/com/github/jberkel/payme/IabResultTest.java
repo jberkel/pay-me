@@ -11,7 +11,7 @@ public class IabResultTest {
 
     @Test public void shouldSupportEquals() throws Exception {
         assertThat(new IabResult(0, "FOO")).isEqualTo(new IabResult(0, "FOO"));
-        assertThat(new IabResult(0, "FOO")).isNotEqualTo(new IabResult(0, "BAR"));
+        assertThat(new IabResult(0, "FOO")).isEqualTo(new IabResult(0, "BAR"));
         assertThat(new IabResult(20, "FOO")).isNotEqualTo(new IabResult(0, "FOO"));
     }
 

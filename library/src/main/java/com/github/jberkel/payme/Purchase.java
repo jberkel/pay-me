@@ -15,6 +15,7 @@
 
 package com.github.jberkel.payme;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,7 +38,7 @@ public class Purchase {
         this(ItemType.INAPP, jsonPurchaseInfo, signature);
     }
 
-    public Purchase(ItemType itemType, String jsonPurchaseInfo, String signature) throws JSONException {
+    public Purchase(@NotNull ItemType itemType, String jsonPurchaseInfo, String signature) throws JSONException {
         mItemType = itemType;
         mOriginalJson = jsonPurchaseInfo;
         JSONObject o = new JSONObject(mOriginalJson);

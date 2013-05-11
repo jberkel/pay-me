@@ -27,10 +27,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.github.jberkel.payme.IabConsts.*;
+import static com.github.jberkel.payme.IabHelper.API_VERSION;
 import static com.github.jberkel.payme.ItemType.INAPP;
 import static com.github.jberkel.payme.ItemType.SUBS;
 import static com.github.jberkel.payme.Response.*;
-import static com.github.jberkel.payme.IabHelper.API_VERSION;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
 import static org.mockito.Matchers.any;
@@ -130,12 +130,14 @@ public class IabHelperTest {
 
     @Test public void shouldDisposeAfterStartupAndUnbindServiceConnection() throws Exception {
         shouldStartSetup_SuccessCase();
+        assertThat(helper.isDisposed()).isFalse();
         helper.dispose();
 
         List<ServiceConnection> unboundServiceConnections =
                 Robolectric.shadowOf(Robolectric.application).getUnboundServiceConnections();
 
         assertThat(unboundServiceConnections).hasSize(1);
+        assertThat(helper.isDisposed()).isTrue();
     }
 
     @Test (expected = IllegalStateException.class)
@@ -352,7 +354,6 @@ public class IabHelperTest {
         shouldStartSetup_CheckForSubscriptions_Unavailable();
 
         Bundle response = new Bundle();
-
         response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList("foo"));
         response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("{}"));
         response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList(""));
@@ -447,7 +448,6 @@ public class IabHelperTest {
         assertThat(inventory.getSkuDetails()).isEmpty();
     }
 
-
     @Test(expected = IabException.class) public void shouldQueryInventoryRemoteException() throws Exception {
         shouldStartSetup_SuccessCase();
 
@@ -517,17 +517,46 @@ public class IabHelperTest {
         }
     }
 
+    @Test public void queryInventoryAsync() throws Exception {
+        shouldStartSetup_CheckForSubscriptions_Unavailable();
+
+        QueryInventoryFinishedListener listener = mock(QueryInventoryFinishedListener.class);
+
+        Bundle response = new Bundle();
+        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList("foo"));
+        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("{}"));
+        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList(""));
+
+        response.putString(INAPP_CONTINUATION_TOKEN, "");
+
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
+                .thenReturn(response);
+
+        helper.queryInventoryAsync(false, null, listener);
+        verify(listener).onQueryInventoryFinished(eq(new IabResult(OK)), any(Inventory.class));
+    }
+
     // consume
 
     @Test(expected = IabException.class) public void shouldNotConsumeSubscription() throws Exception {
         shouldStartSetup_SuccessCase();
-        Purchase purchase = new Purchase(SUBS, "{}", "");
+        Purchase purchase = mock(Purchase.class);
+        when(purchase.getToken()).thenReturn("foo");
+        when(purchase.getItemType()).thenReturn(SUBS);
         helper.consume(purchase);
     }
 
-    @Test(expected = IabException.class) public void shouldConsumeInAppItemWithoutToken() throws Exception {
+    @Test(expected = IabException.class) public void shouldNotConsumePurchaseWithoutType() throws Exception {
         shouldStartSetup_SuccessCase();
-        Purchase purchase = new Purchase("{}", "");
+        Purchase purchase = mock(Purchase.class);
+        when(purchase.getToken()).thenReturn("foo");
+        helper.consume(purchase);
+    }
+
+    @Test(expected = IabException.class) public void shouldNotConsumeInAppItemWithoutToken() throws Exception {
+        shouldStartSetup_SuccessCase();
+        Purchase purchase = mock(Purchase.class);
+        when(purchase.getItemType()).thenReturn(INAPP);
         helper.consume(purchase);
     }
 
@@ -548,9 +577,22 @@ public class IabHelperTest {
 
     @Test(expected = IabException.class) public void shouldConsumeInAppItemRemoteException() throws Exception {
         shouldStartSetup_SuccessCase();
-        Purchase purchase = new Purchase("{ \"token\": \"foo\" }", "");
+        Purchase purchase = mock(Purchase.class);
         when(service.consumePurchase(API_VERSION, Robolectric.application.getPackageName(), "foo")).thenThrow(new RemoteException());
         helper.consume(purchase);
+    }
+
+    @Test public void shouldConsumeAsync() throws Exception {
+        shouldStartSetup_SuccessCase();
+        Purchase purchase = mock(Purchase.class);
+        when(purchase.getToken()).thenReturn("foo");
+        when(purchase.getItemType()).thenReturn(INAPP);
+
+        OnConsumeFinishedListener listener = mock(OnConsumeFinishedListener.class);
+
+        when(service.consumePurchase(API_VERSION, Robolectric.application.getPackageName(), "foo")).thenReturn(OK.code);
+        helper.consumeAsync(purchase, listener);
+        verify(listener).onConsumeFinished(purchase, new IabResult(OK));
     }
 
     // getResponseCodeFromBundle

@@ -11,8 +11,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 @RunWith(RobolectricTestRunner.class)
 public class PurchaseTest {
 
-    @Test
-    public void shouldParsePurchase() throws Exception {
+    @Test public void shouldParsePurchase() throws Exception {
         String purchase = resourceAsString("purchase.json");
         Purchase p = new Purchase(purchase, "signature");
 
@@ -24,5 +23,10 @@ public class PurchaseTest {
         assertThat(p.getSignature()).isEqualTo("signature");
         assertThat(p.getOriginalJson()).isEqualTo(purchase);
         assertThat(p.getItemType()).isEqualTo(ItemType.INAPP);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAcceptNullItemType() throws Exception {
+        new Purchase(null, "{}", "");
     }
 }

@@ -44,8 +44,8 @@ public class IabResult {
         }
     }
 
-    public int getResponse() {
-        return mResponse.code;
+    public Response getResponse() {
+        return mResponse;
     }
 
     public String getMessage() {
@@ -70,14 +70,12 @@ public class IabResult {
         if (o == null || getClass() != o.getClass()) return false;
 
         IabResult iabResult = (IabResult) o;
-        return mResponse == iabResult.mResponse && mMessage.equals(iabResult.mMessage);
+        return mResponse == iabResult.mResponse;
     }
 
     @Override
     public int hashCode() {
-        int result = mResponse.hashCode();
-        result = 31 * result + mMessage.hashCode();
-        return result;
+        return mResponse.hashCode();
     }
 }
 
