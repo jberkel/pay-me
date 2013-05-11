@@ -65,14 +65,13 @@ public class IabHelperTest {
 
     @Test public void shouldCreateHelper() throws Exception {
         IabHelper helper = new IabHelper(Robolectric.application, "key");
-        assertThat(helper.getSignature()).isEqualTo("key");
+        assertThat(helper.isDisposed()).isFalse();
     }
 
     @Test public void shouldCreateHelperFromResource() throws Exception {
         IabHelper helper = new IabHelper(Robolectric.application);
-        assertThat(helper.getSignature()).isEqualTo("sample-public-key");
+        assertThat(helper.isDisposed()).isFalse();
     }
-
 
     @Test public void shouldStartSetup_SuccessCase() throws Exception {
         registerServiceWithPackageManager();

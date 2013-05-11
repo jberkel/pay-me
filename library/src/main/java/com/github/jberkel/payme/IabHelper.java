@@ -28,6 +28,8 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 import com.android.vending.billing.IInAppBillingService;
+import com.github.jberkel.payme.security.DefaultSignatureValidator;
+import com.github.jberkel.payme.security.SignatureValidator;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 
@@ -103,11 +105,10 @@ public class IabHelper {
     // The item type of the current purchase flow
     private ItemType mPurchasingItemType;
 
-    // Public key for verifying signature, in base64 encoding
-    private String mSignatureBase64;
-
     // The listener registered on launchPurchaseFlow, which we have to call back when the purchase finishes
     private @Nullable OnIabPurchaseFinishedListener mPurchaseListener;
+
+    private SignatureValidator mSignatureValidator;
 
     /**
      * Like {@link #IabHelper(android.content.Context, String)}, but uses the string resource
@@ -131,8 +132,8 @@ public class IabHelper {
      */
     public IabHelper(Context ctx, String base64PublicKey) {
         mContext = ctx.getApplicationContext();
-        mSignatureBase64 = base64PublicKey;
         logDebug("IAB helper created.");
+        mSignatureValidator = new DefaultSignatureValidator(base64PublicKey);
     }
 
     /**
@@ -416,7 +417,7 @@ public class IabHelper {
                 String sku = purchase.getSku();
 
                 // Verify signature
-                if (!Security.verifyPurchase(mSignatureBase64, purchaseData, dataSignature)) {
+                if (!mSignatureValidator.validate(purchaseData, dataSignature)) {
                     logError("Purchase signature verification FAILED for sku " + sku);
                     result = new IabResult(IABHELPER_VERIFICATION_FAILED, "Signature verification failed for sku " + sku);
                     if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, purchase);
@@ -621,10 +622,6 @@ public class IabHelper {
         }
     }
 
-    protected String getSignature() {
-        return mSignatureBase64;
-    }
-
     protected int getResponseCodeFromBundle(Bundle bundle) {
         Object o;
         if (bundle == null || ((o = bundle.get(RESPONSE_CODE)) == null)) {
@@ -697,7 +694,7 @@ public class IabHelper {
                 String purchaseData = purchaseDataList.get(i);
                 String signature = signatureList.get(i);
                 String sku = ownedSkus.get(i);
-                if (Security.verifyPurchase(mSignatureBase64, purchaseData, signature)) {
+                if (mSignatureValidator.validate(purchaseData, signature)) {
                     logDebug("Sku is owned: " + sku);
                     Purchase purchase = new Purchase(itemType, purchaseData, signature);
 

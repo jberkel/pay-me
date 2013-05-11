@@ -1,5 +1,6 @@
-package com.github.jberkel.payme;
+package com.github.jberkel.payme.security;
 
+import com.github.jberkel.payme.security.Base64;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;

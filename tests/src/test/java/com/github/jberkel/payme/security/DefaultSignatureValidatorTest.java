@@ -1,5 +1,6 @@
-package com.github.jberkel.payme;
+package com.github.jberkel.payme.security;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -9,35 +10,42 @@ import java.security.PublicKey;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
-public class SecurityTest {
+public class DefaultSignatureValidatorTest {
+    SignatureValidator validator;
+
+    @Before public void before() throws Exception {
+        validator = new DefaultSignatureValidator(ENCODED_KEY);
+    }
+
     @Test public void shouldVerifyPurchaseNullInput() throws Exception {
-        assertThat(Security.verifyPurchase("", null, "")).isFalse();
+        assertThat(validator.validate(null, "")).isFalse();
     }
 
     @Test public void shouldVerifyPurchaseEmptyInput() throws Exception {
-        assertThat(Security.verifyPurchase("", "", "")).isTrue();
+        assertThat(validator.validate("", "")).isTrue();
     }
 
     @Test public void shouldVerifyPurchaseNonEmptyInputEmptySignature() throws Exception {
-        assertThat(Security.verifyPurchase("", "{}", "")).isTrue();
+        assertThat(validator.validate("{}", "")).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldVerifyPurchaseWithInvalidKeyAndSignatureShouldThrow() throws Exception {
-        Security.verifyPurchase("", "", "signature");
+        new DefaultSignatureValidator("").validate("", "signature");
     }
 
+    @Test
     public void shouldVerifyPurchaseWithValidKeyAndInvalidSignatureShouldThrow() throws Exception {
-        assertThat(Security.verifyPurchase(ENCODED_KEY, "{}", "signature")).isFalse();
+        assertThat(validator.validate("{}", "signature")).isFalse();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotGeneratePublicKeyWithInvalidKey() throws Exception {
-        Security.generatePublicKey("invalid!");
+        DefaultSignatureValidator.generatePublicKey("invalid!");
     }
 
     @Test public void shouldGeneratePublicKey() throws Exception {
-        PublicKey key = Security.generatePublicKey(ENCODED_KEY);
+        PublicKey key = DefaultSignatureValidator.generatePublicKey(ENCODED_KEY);
         assertThat(key.getAlgorithm()).isEqualTo("RSA");
     }
 

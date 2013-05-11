@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.github.jberkel.payme;
+package com.github.jberkel.payme.security;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -37,11 +37,17 @@ import java.security.spec.X509EncodedKeySpec;
  * make it harder for an attacker to replace the code with stubs that treat all
  * purchases as verified.
  */
-public class Security {
+public class DefaultSignatureValidator implements SignatureValidator {
     private static final String TAG = "IABUtil/Security";
 
     private static final String KEY_FACTORY_ALGORITHM = "RSA";
     private static final String SIGNATURE_ALGORITHM = "SHA1withRSA";
+
+    private final String mBase64EncodedKey;
+
+    public DefaultSignatureValidator(String base64EncodedKey) {
+        mBase64EncodedKey = base64EncodedKey;
+    }
 
     /**
      * Verifies that the data was signed with the given signature, and returns
@@ -61,8 +67,8 @@ public class Security {
 
         boolean verified = false;
         if (!TextUtils.isEmpty(signature)) {
-            PublicKey key = Security.generatePublicKey(base64PublicKey);
-            verified = Security.verify(key, signedData, signature);
+            PublicKey key = DefaultSignatureValidator.generatePublicKey(base64PublicKey);
+            verified = DefaultSignatureValidator.verify(key, signedData, signature);
             if (!verified) {
                 Log.w(TAG, "signature does not match data.");
                 return false;
@@ -78,7 +84,7 @@ public class Security {
      * @param encodedPublicKey Base64-encoded public key
      * @throws IllegalArgumentException if encodedPublicKey is invalid
      */
-    public static PublicKey generatePublicKey(String encodedPublicKey) {
+    protected static PublicKey generatePublicKey(String encodedPublicKey) {
         try {
             byte[] decodedKey = Base64.decode(encodedPublicKey);
             KeyFactory keyFactory = KeyFactory.getInstance(KEY_FACTORY_ALGORITHM);
@@ -124,5 +130,11 @@ public class Security {
             Log.e(TAG, "Base64 decoding failed.");
         }
         return false;
+    }
+
+    @Override
+    public boolean validate(String signedData, String signature) {
+        return verifyPurchase(mBase64EncodedKey, signedData, signature);
+
     }
 }

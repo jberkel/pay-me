@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.github.jberkel.payme;
+package com.github.jberkel.payme.security;
 
 /**
  * Exception thrown when encountering an invalid Base64 input character.
