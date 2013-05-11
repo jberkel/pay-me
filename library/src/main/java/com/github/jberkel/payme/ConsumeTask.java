@@ -35,7 +35,7 @@ public class ConsumeTask extends AsyncTask<Purchase, Void, List<IabResult>> {
         mPurchases = new ArrayList<Purchase>(purchases.length);
         Collections.addAll(mPurchases, purchases);
 
-        final List<IabResult> results = new ArrayList<IabResult>();
+        final List<IabResult> results = new ArrayList<IabResult>(purchases.length);
         for (Purchase purchase : purchases) {
             try {
                 mIabHelper.consume(purchase);
