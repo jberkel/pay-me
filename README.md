@@ -15,7 +15,7 @@ Install the apklib to your local maven repository (it has not been published yet
 
 ```
 $ git clone https://github.com/jberkel/pay-me.git
-$ mvn install
+$ cd pay-me && mvn install
 ```
 
 Add a maven dependency in your main project:
@@ -46,7 +46,8 @@ Instantiate and use the [IabHelper][] in your activity:
                      public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
                         // handle purchase result
                      }
-                  }, null);
+                  }, null
+              );
           }
         }
     });
