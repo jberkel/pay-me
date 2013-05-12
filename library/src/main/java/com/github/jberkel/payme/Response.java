@@ -1,6 +1,6 @@
 package com.github.jberkel.payme;
 
-enum Response {
+public enum Response {
     OK(0, "OK"),
     USER_CANCELED(1, "User Canceled"),
     BILLING_UNAVAILABLE(3, "Billing Unavailable"),
@@ -14,7 +14,6 @@ enum Response {
     IABHELPER_BAD_RESPONSE(-1002, "Bad response received"),
     IABHELPER_VERIFICATION_FAILED(-1003, "Purchase signature verification failed"),
     IABHELPER_SEND_INTENT_FAILED(-1004, "Send intent failed"),
-    IABHELPER_USER_CANCELLED(-1005, "User cancelled"),
     IABHELPER_UNKNOWN_PURCHASE_RESPONSE(-1006, "Unknown purchase response"),
     IABHELPER_MISSING_TOKEN(-1007, "Missing token"),
     IABHELPER_UNKNOWN_ERROR(-1008, "Unknown error"),
