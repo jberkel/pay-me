@@ -32,6 +32,15 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.6.2.201302030002</version>
+                <configuration>
+                    <excludes>
+                        <exclude>com/android/vending/billing/IInAppBillingService.class</exclude>
+                        <exclude>com/android/vending/billing/IInAppBillingService$Stub.class</exclude>
+                        <exclude>com/android/vending/billing/IInAppBillingService$Stub$Proxy.class</exclude>
+                    </excludes>
+                    <check/>
+                </configuration>
+
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -42,7 +51,7 @@
                     <!--
                     <execution>
                         <id>report</id>
-                        <phase>prepare-package</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
