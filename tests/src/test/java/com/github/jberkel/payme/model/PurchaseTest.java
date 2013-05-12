@@ -1,6 +1,7 @@
 package com.github.jberkel.payme.model;
 
 
+import org.json.JSONException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -16,6 +17,7 @@ public class PurchaseTest {
         Purchase p = new Purchase(purchase, "signature");
 
         assertThat(p.getOrderId()).isEqualTo("someOrderId");
+        assertThat(p.getSku()).isEqualTo("someSKU");
         assertThat(p.getPackageName()).isEqualTo("com.example.test");
         assertThat(p.getPurchaseTime()).isEqualTo(12345L);
         assertThat(p.getPurchaseState()).isEqualTo(1);
@@ -35,5 +37,10 @@ public class PurchaseTest {
         String purchase = resourceAsString("purchase.json");
         Purchase p = new Purchase(purchase, "signature");
         assertThat(p.toString()).startsWith("Purchase(type:inapp)");
+    }
+
+    @Test(expected = JSONException.class) public void shouldRequireAnSKU() throws Exception {
+        String purchase = resourceAsString("purchase_without_sku.json");
+        new Purchase(purchase, "");
     }
 }

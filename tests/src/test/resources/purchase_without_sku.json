@@ -1,5 +1,4 @@
 {
-    "productId": "someSKU",
     "orderId": "someOrderId",
     "packageName": "com.example.test",
     "purchaseTime": 12345,

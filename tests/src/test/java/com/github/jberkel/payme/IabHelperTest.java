@@ -36,6 +36,7 @@ import java.util.List;
 
 import static com.github.jberkel.payme.IabConsts.*;
 import static com.github.jberkel.payme.Response.*;
+import static com.github.jberkel.payme.TestHelper.BundleStringArrayListMatcher.bundleWithStringValues;
 import static com.github.jberkel.payme.model.ItemType.INAPP;
 import static com.github.jberkel.payme.model.ItemType.SUBS;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -313,7 +314,7 @@ public class IabHelperTest {
         shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
         data.putExtra(RESPONSE_CODE, OK.code);
-        data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, "{}");
+        data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, "{ \"productId\": \"foo\" }");
         data.putExtra(RESPONSE_INAPP_SIGNATURE, "");
 
         assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, Activity.RESULT_OK, data)).isTrue();
@@ -376,7 +377,7 @@ public class IabHelperTest {
 
         Intent data = new Intent();
         data.putExtra(RESPONSE_CODE, OK.code);
-        data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, "{}");
+        data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, "{ \"productId\": \"foo\" }");
         data.putExtra(RESPONSE_INAPP_SIGNATURE, "some signature");
 
         assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, Activity.RESULT_OK, data)).isTrue();
@@ -389,12 +390,7 @@ public class IabHelperTest {
     @Test public void shouldQueryInventoryWithoutSubscriptions() throws Exception {
         shouldStartSetup_CheckForSubscriptions_Unavailable();
 
-        Bundle response = new Bundle();
-        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList("foo"));
-        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("{}"));
-        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList(""));
-
-        response.putString(INAPP_CONTINUATION_TOKEN, "");
+        Bundle response = createInventoryResponseBundle("foo");
 
         when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                         .thenReturn(response);
@@ -408,28 +404,44 @@ public class IabHelperTest {
     @Test public void shouldQueryInventoryWithoutSubscriptionsButSkuDetails() throws Exception {
         shouldStartSetup_CheckForSubscriptions_Unavailable();
 
-        Bundle response = new Bundle();
-
-        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList("foo"));
-        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("{}"));
-        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList(""));
-
-        response.putString(INAPP_CONTINUATION_TOKEN, "");
-
-        Bundle skuDetails = new Bundle();
-        skuDetails.putStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST, asList("{}"));
+        Bundle response = createInventoryResponseBundle("foo");
+        Bundle skuDetails = createSkuDetailsResponseBundle("foo");
 
         when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
 
+
         when(service.getSkuDetails(eq(API_VERSION),
                 eq(Robolectric.application.getPackageName()),
                 eq("inapp"),
-                any(Bundle.class)))
+                bundleWithStringValues(GET_SKU_DETAILS_ITEM_LIST, "foo")))
            .thenReturn(skuDetails);
 
-
         Inventory inventory = helper.queryInventory(true, null ,null);
+
+        assertThat(inventory.getAllPurchases()).hasSize(1);
+        assertThat(inventory.getAllOwnedSkus()).hasSize(1);
+        assertThat(inventory.getSkuDetails()).hasSize(1);
+    }
+
+    @Test public void shouldQueryInventoryWithoutSubscriptionsButSkuDetailsAndMoreSkus() throws Exception {
+        shouldStartSetup_CheckForSubscriptions_Unavailable();
+
+        Bundle response = createInventoryResponseBundle("foo");
+        Bundle skuDetails = createSkuDetailsResponseBundle("foo");
+
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
+                .thenReturn(response);
+
+
+        when(service.getSkuDetails(eq(API_VERSION),
+                eq(Robolectric.application.getPackageName()),
+                eq("inapp"),
+                bundleWithStringValues(GET_SKU_DETAILS_ITEM_LIST, "foo", "anotherSku")))
+                .thenReturn(skuDetails);
+
+        Inventory inventory = helper.queryInventory(true, asArrayList("anotherSku"), null);
+
         assertThat(inventory.getAllPurchases()).hasSize(1);
         assertThat(inventory.getAllOwnedSkus()).hasSize(1);
         assertThat(inventory.getSkuDetails()).hasSize(1);
@@ -438,13 +450,7 @@ public class IabHelperTest {
     @Test(expected = IabException.class) public void shouldQueryInventoryWithoutSubscriptionsButSkuDetailsAndSkuError() throws Exception {
         shouldStartSetup_CheckForSubscriptions_Unavailable();
 
-        Bundle response = new Bundle();
-
-        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList("foo"));
-        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("{}"));
-        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList(""));
-
-        response.putString(INAPP_CONTINUATION_TOKEN, "");
+        Bundle response =  createInventoryResponseBundle("foo");
 
         Bundle skuDetails = new Bundle();
         skuDetails.putInt(RESPONSE_CODE, ERROR.code);
@@ -466,9 +472,9 @@ public class IabHelperTest {
         shouldStartSetup_CheckForSubscriptions_Unavailable();
 
         Bundle response = new Bundle();
-        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList()); // NB empty list here
-        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("{}"));
-        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList(""));
+        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asArrayList()); // NB empty list here
+        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asArrayList("{}"));
+        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asArrayList(""));
         response.putString(INAPP_CONTINUATION_TOKEN, "");
 
         Bundle skuDetails = new Bundle();
@@ -490,13 +496,7 @@ public class IabHelperTest {
     @Test public void shouldQueryInventoryWithEmptySkuDetails() throws Exception {
         shouldStartSetup_CheckForSubscriptions_Unavailable();
 
-        Bundle response = new Bundle();
-
-        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList());
-        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList());
-        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList());
-        response.putString(INAPP_CONTINUATION_TOKEN, "");
-
+        Bundle response = createInventoryResponseBundle();
         Bundle skuDetails = new Bundle();
 
         when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
@@ -508,19 +508,14 @@ public class IabHelperTest {
                 any(Bundle.class)))
                 .thenReturn(skuDetails);
 
-        helper.queryInventory(true, null, null);
+        Inventory inv = helper.queryInventory(true, null, null);
+        assertThat(inv.getAllOwnedSkus().isEmpty());
     }
 
     @Test public void shouldQueryInventoryEmptySkuDetails() throws Exception {
         shouldStartSetup_CheckForSubscriptions_Unavailable();
 
-        Bundle response = new Bundle();
-
-        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList());
-        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList());
-        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList());
-        response.putString(INAPP_CONTINUATION_TOKEN, "");
-
+        Bundle response = createInventoryResponseBundle();
         Bundle skuDetails = new Bundle();
 
         when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
@@ -532,20 +527,15 @@ public class IabHelperTest {
                 any(Bundle.class)))
                 .thenReturn(skuDetails);
 
-        helper.queryInventory(true, null, null);
+        Inventory inv = helper.queryInventory(true, null, null);
+        assertThat(inv.getAllOwnedSkus().isEmpty());
     }
 
 
     @Test public void shouldQueryInventoryWithSubscriptions() throws Exception {
         shouldStartSetup_SuccessCase();
 
-        Bundle response = new Bundle();
-
-        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList("foo"));
-        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("{}"));
-        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList(""));
-
-        response.putString(INAPP_CONTINUATION_TOKEN, "");
+        Bundle response = createInventoryResponseBundle("foo");
 
         when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
@@ -557,6 +547,67 @@ public class IabHelperTest {
         assertThat(inventory.getAllOwnedSkus()).hasSize(1);
         assertThat(inventory.getSkuDetails()).isEmpty();
     }
+
+    @Test public void shouldQueryInventoryWithSubscriptionsAndSkus() throws Exception {
+        shouldStartSetup_SuccessCase();
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
+                .thenReturn(createInventoryResponseBundle("foo"));
+
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "subs", null))
+                .thenReturn(createInventoryResponseBundle("bar"));
+
+        when(service.getSkuDetails(eq(API_VERSION),
+                eq(Robolectric.application.getPackageName()),
+                eq("inapp"),
+                any(Bundle.class)))
+                .thenReturn(createSkuDetailsResponseBundle("foo"));
+
+        when(service.getSkuDetails(eq(API_VERSION),
+                eq(Robolectric.application.getPackageName()),
+                eq("subs"),
+                any(Bundle.class)))
+                .thenReturn(createSkuDetailsResponseBundle("bar"));
+
+        Inventory inventory = helper.queryInventory(true, null ,null);
+
+        assertThat(inventory.getAllPurchases()).hasSize(2);
+        assertThat(inventory.getAllOwnedSkus()).hasSize(2);
+        assertThat(inventory.getSkuDetails()).hasSize(2);
+    }
+
+    @Test public void shouldQueryInventoryWithSubscriptionsAndSkusAndMoreSkus() throws Exception {
+        shouldStartSetup_SuccessCase();
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
+                .thenReturn(createInventoryResponseBundle("inappSku"));
+
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "subs", null))
+                .thenReturn(createInventoryResponseBundle("subSku"));
+
+        when(service.getSkuDetails(eq(API_VERSION),
+                eq(Robolectric.application.getPackageName()),
+                eq("inapp"),
+                bundleWithStringValues(GET_SKU_DETAILS_ITEM_LIST, "inappSku", "anotherInAppSku")))
+                .thenReturn(createSkuDetailsResponseBundle("inappSku", "anotherInappSku"));
+
+        when(service.getSkuDetails(eq(API_VERSION),
+                eq(Robolectric.application.getPackageName()),
+                eq("subs"),
+                bundleWithStringValues(GET_SKU_DETAILS_ITEM_LIST, "subSku", "anotherSubSku")))
+                .thenReturn(createSkuDetailsResponseBundle("subSku", "anotherSubSku"));
+
+        Inventory inventory = helper.queryInventory(true,
+                asArrayList("anotherInAppSku"),
+                asArrayList("anotherSubSku"));
+
+        assertThat(inventory.getAllOwnedSkus(INAPP)).hasSize(1);
+        assertThat(inventory.getAllOwnedSkus(SUBS)).hasSize(1);
+
+        assertThat(inventory.getAllPurchases()).hasSize(2); // inappSku + subSku
+        assertThat(inventory.getAllOwnedSkus()).hasSize(2);
+
+        assertThat(inventory.getSkuDetails()).hasSize(4);
+    }
+
 
     @Test(expected = IabException.class) public void shouldQueryInventoryRemoteException() throws Exception {
         shouldStartSetup_SuccessCase();
@@ -583,9 +634,9 @@ public class IabHelperTest {
 
         Bundle response = new Bundle();
 
-        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList("foo"));
-        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("not json"));
-        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList(""));
+        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asArrayList("foo"));
+        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asArrayList("not json"));
+        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asArrayList(""));
 
         when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
@@ -609,9 +660,9 @@ public class IabHelperTest {
 
         Bundle response = new Bundle();
 
-        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList("foo"));
-        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("{}"));
-        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList("INVALID"));
+        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asArrayList("foo"));
+        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asArrayList("{}"));
+        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asArrayList("INVALID"));
 
         response.putString(INAPP_CONTINUATION_TOKEN, "");
 
@@ -632,12 +683,7 @@ public class IabHelperTest {
 
         QueryInventoryFinishedListener listener = mock(QueryInventoryFinishedListener.class);
 
-        Bundle response = new Bundle();
-        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList("foo"));
-        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("{}"));
-        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList(""));
-
-        response.putString(INAPP_CONTINUATION_TOKEN, "");
+        Bundle response = createInventoryResponseBundle("foo");
 
         when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
@@ -647,7 +693,6 @@ public class IabHelperTest {
     }
 
     // consume
-
     @Test(expected = IabException.class) public void shouldNotConsumeSubscription() throws Exception {
         shouldStartSetup_SuccessCase();
         Purchase purchase = mock(Purchase.class);
@@ -775,12 +820,41 @@ public class IabHelperTest {
         return context;
     }
 
-    private static ArrayList<String> asList(String... elements) {
+    private static ArrayList<String> asArrayList(String... elements) {
         ArrayList<String> list = new ArrayList<String>();
         Collections.addAll(list, elements);
         return list;
     }
 
+
+    private static Bundle createInventoryResponseBundle(String... skus) {
+        Bundle response = new Bundle();
+        ArrayList<String> itemList = new ArrayList<String>(skus.length);
+        ArrayList<String> signatures = new ArrayList<String>(skus.length);
+        ArrayList<String> purchaseData = new ArrayList<String>(skus.length);
+        for (String sku : skus) {
+            itemList.add(sku);
+            signatures.add("");
+            purchaseData.add("{ \"productId\": \""+sku+"\" }");
+        }
+        response.putInt(RESPONSE_CODE, OK.code);
+        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, itemList);
+        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, purchaseData);
+        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, signatures);
+        response.putString(INAPP_CONTINUATION_TOKEN, "");
+        return response;
+    }
+
+    private static Bundle createSkuDetailsResponseBundle(String... skus) {
+        Bundle response = new Bundle();
+        ArrayList<String> itemList = new ArrayList<String>(skus.length);
+        for (String sku : skus) {
+            itemList.add("{ \"productId\": \""+sku+"\" }");
+        }
+        response.putInt(RESPONSE_CODE, OK.code);
+        response.putStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST, itemList);
+        return response;
+    }
 
     final static String PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzoFJ+dq/PQo2u71ndt2k\n" +
             "t0XK3oGFvUPagg0QogBrp2IyBKTodFtmcb0riKtDGjZ9JKB45GIBC3RR2fuC9lOR\n" +

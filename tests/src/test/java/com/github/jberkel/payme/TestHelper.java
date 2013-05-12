@@ -1,9 +1,16 @@
 package com.github.jberkel.payme;
 
+import android.os.Bundle;
+import org.hamcrest.Description;
+import org.mockito.ArgumentMatcher;
+import org.mockito.Matchers;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -24,6 +31,32 @@ public class TestHelper {
             return new String(bos.toByteArray(), Charset.forName("UTF-8"));
         } finally {
             is.close();
+        }
+    }
+
+    public static class BundleStringArrayListMatcher extends ArgumentMatcher<Bundle> {
+        private String key;
+        private String[] values;
+
+        public BundleStringArrayListMatcher(String key, String... values) {
+            this.key = key;
+            this.values = values;
+        }
+
+        @Override
+        public boolean matches(Object argument) {
+            Bundle b = (Bundle) argument;
+            List<String> strings = b.getStringArrayList(key);
+            return strings != null && strings.equals(Arrays.asList(values));
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText(" wanted:"+ Arrays.asList(values));
+        }
+
+        public static Bundle bundleWithStringValues(String key, String...values) {
+            return Matchers.argThat(new BundleStringArrayListMatcher(key, values));
         }
     }
 }

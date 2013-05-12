@@ -216,18 +216,16 @@ public class IabHelper {
                             logDebug("Subscriptions NOT AVAILABLE. Response: "+response + " " + Response.getDescription(response));
                         }
                     }
+                    if (listener != null) {
+                        listener.onIabSetupFinished(new IabResult(OK));
+                    }
                 } catch (RemoteException e) {
                     if (listener != null) {
                         listener.onIabSetupFinished(new IabResult(IABHELPER_REMOTE_EXCEPTION));
                     }
                     Log.e(mDebugTag, "RemoteException while setting up in-app billing.", e);
-                    return;
                 } finally {
                     mSetupDone = true;
-                }
-
-                if (listener != null) {
-                    listener.onIabSetupFinished(new IabResult(OK));
                 }
             }
         };
@@ -308,7 +306,7 @@ public class IabHelper {
      *
      * @param act The calling activity.
      * @param sku The sku of the item to purchase.
-     * @param itemType indicates if it's a product or a subscription (ITEM_TYPE_INAPP or ITEM_TYPE_SUBS)
+     * @param itemType indicates if it's a product or a subscription
      * @param requestCode A request code (to differentiate from other responses --
      *     as in {@link android.app.Activity#startActivityForResult}).
      * @param listener The listener to notify when the purchase process finishes
@@ -328,12 +326,9 @@ public class IabHelper {
 
             flagEndAsync();
             if (listener != null) {
-                if (itemType == INAPP) {
-                    result = new IabResult(BILLING_UNAVAILABLE);
-                } else {
-                    result = new IabResult(IABHELPER_SUBSCRIPTIONS_NOT_AVAILABLE);
-                }
-                listener.onIabPurchaseFinished(result, null);
+                listener.onIabPurchaseFinished(
+                    new IabResult(itemType == INAPP ? BILLING_UNAVAILABLE : IABHELPER_SUBSCRIPTIONS_NOT_AVAILABLE),
+                    null);
             }
             return;
         }
@@ -365,15 +360,11 @@ public class IabHelper {
         } catch (SendIntentException e) {
             logError("SendIntentException while launching purchase flow for sku " + sku, e);
             flagEndAsync();
-
-            result = new IabResult(IABHELPER_SEND_INTENT_FAILED);
-            if (listener != null) listener.onIabPurchaseFinished(result, null);
+            if (listener != null) listener.onIabPurchaseFinished(new IabResult(IABHELPER_SEND_INTENT_FAILED), null);
         } catch (RemoteException e) {
             logError("RemoteException while launching purchase flow for sku " + sku, e);
             flagEndAsync();
-
-            result = new IabResult(IABHELPER_REMOTE_EXCEPTION);
-            if (listener != null) listener.onIabPurchaseFinished(result, null);
+            if (listener != null) listener.onIabPurchaseFinished(new IabResult(IABHELPER_REMOTE_EXCEPTION), null);
         }
     }
 
@@ -518,13 +509,12 @@ public class IabHelper {
                 }
 
                 if (querySkuDetails) {
-                    r = querySkuDetails(SUBS, inv, moreItemSkus);
+                    r = querySkuDetails(SUBS, inv, moreSubsSkus);
                     if (r != OK.code) {
                         throw new IabException(r, "Error refreshing inventory (querying prices of subscriptions).");
                     }
                 }
             }
-
             return inv;
         } catch (RemoteException e) {
             throw new IabException(IABHELPER_REMOTE_EXCEPTION, "Remote exception while refreshing inventory.", e);
@@ -558,7 +548,6 @@ public class IabHelper {
     public void queryInventoryAsync(boolean querySkuDetails, QueryInventoryFinishedListener listener) {
         queryInventoryAsync(querySkuDetails, null, listener);
     }
-
 
     /**
      * Consumes a given in-app product. Consuming can only be done on an item
@@ -757,8 +746,8 @@ public class IabHelper {
 
         Bundle querySkus = new Bundle();
         querySkus.putStringArrayList(GET_SKU_DETAILS_ITEM_LIST, skuList);
-        Bundle skuDetails = mService.getSkuDetails(API_VERSION, mContext.getPackageName(),
-                itemType.toString(), querySkus);
+        Bundle skuDetails = mService.getSkuDetails(API_VERSION, mContext.getPackageName(), itemType.toString(), querySkus);
+        if (skuDetails == null) return IABHELPER_BAD_RESPONSE.code;
 
         if (!skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
             int response = getResponseCodeFromBundle(skuDetails);

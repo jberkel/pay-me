@@ -15,6 +15,7 @@
 
 package com.github.jberkel.payme.model;
 
+import android.text.TextUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,6 +52,10 @@ public class Purchase {
         mDeveloperPayload = o.optString("developerPayload");
         mToken = o.optString("token", o.optString("purchaseToken"));
         mSignature = signature;
+
+        if (TextUtils.isEmpty(mSku)) {
+            throw new JSONException("SKU is empty");
+        }
     }
 
     public ItemType getItemType() { return mItemType; }

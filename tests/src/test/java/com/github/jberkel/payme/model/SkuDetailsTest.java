@@ -43,7 +43,12 @@ public class SkuDetailsTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAcceptNullItemTypeForSecondConstructor() throws Exception {
+    public void shouldNotAcceptNullItemTypeForArgumentConstructor() throws Exception {
         new SkuDetails(null, "123", "type", "1.99", "ACME", "A great ACME flamethrower");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAcceptEmptySKUForArgumentConstructor() throws Exception {
+        new SkuDetails(null, "", "type", "1.99", "ACME", "A great ACME flamethrower");
     }
 }

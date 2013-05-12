@@ -15,6 +15,7 @@
 
 package com.github.jberkel.payme.model;
 
+import android.text.TextUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,11 +46,17 @@ public class SkuDetails {
         mPrice = o.optString("price");
         mTitle = o.optString("title");
         mDescription = o.optString("description");
+
+        if (TextUtils.isEmpty(mSku)) {
+            throw new JSONException("SKU cannot be empty");
+        }
     }
 
     public SkuDetails(ItemType itemType, String sku, String type, String price, String title, String description) {
         if (itemType == null) throw new IllegalArgumentException("itemType cannot be null");
-
+        if (TextUtils.isEmpty(sku)) {
+            throw new IllegalArgumentException("SKU cannot be empty");
+        }
         mItemType = itemType;
         mSku = sku;
         mType = type;
