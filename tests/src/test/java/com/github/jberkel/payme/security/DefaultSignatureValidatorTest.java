@@ -5,8 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import java.security.PublicKey;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
@@ -34,22 +32,17 @@ public class DefaultSignatureValidatorTest {
         new DefaultSignatureValidator("").validate("", "signature");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldVerifyPurchaseWithInvalidKeyShouldThrow() throws Exception {
+        new DefaultSignatureValidator("INVALIDKEY").validate("", "");
+    }
+
     @Test
     public void shouldVerifyPurchaseWithValidKeyAndInvalidSignatureShouldThrow() throws Exception {
         assertThat(validator.validate("{}", "signature")).isFalse();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotGeneratePublicKeyWithInvalidKey() throws Exception {
-        DefaultSignatureValidator.generatePublicKey("invalid!");
-    }
-
-    @Test public void shouldGeneratePublicKey() throws Exception {
-        PublicKey key = DefaultSignatureValidator.generatePublicKey(ENCODED_KEY);
-        assertThat(key.getAlgorithm()).isEqualTo("RSA");
-    }
-
-    static final String ENCODED_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzoFJ+dq/PQo2u71ndt2k\n" +
+    private static final String ENCODED_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzoFJ+dq/PQo2u71ndt2k\n" +
             "t0XK3oGFvUPagg0QogBrp2IyBKTodFtmcb0riKtDGjZ9JKB45GIBC3RR2fuC9lOR\n" +
             "15rRjA2Tfxoig0K/VYy7K5+fkLt2yGVDd3oqBFEDSGcwYYP1LfmgI8B2WJjACu3V\n" +
             "ehEQeO/cYrr8tav6VthmqdrL9C+BL9McTMjf3FzeJOTkiGeOFCu58T/sYvSc0ESG\n" +

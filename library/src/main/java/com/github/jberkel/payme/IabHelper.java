@@ -140,8 +140,14 @@ public class IabHelper {
      *     is NOT your "developer public key".
      */
     public IabHelper(Context ctx, String base64PublicKey) {
+        this(ctx, new DefaultSignatureValidator(base64PublicKey));
+    }
+
+    public IabHelper(Context ctx, SignatureValidator validator) {
+        if (validator == null) throw new IllegalArgumentException("need non-null validator");
+
         mContext = ctx.getApplicationContext();
-        mSignatureValidator = new DefaultSignatureValidator(base64PublicKey);
+        mSignatureValidator = validator;
         logDebug("IAB helper created.");
     }
 
@@ -520,11 +526,9 @@ public class IabHelper {
             }
 
             return inv;
-        }
-        catch (RemoteException e) {
+        } catch (RemoteException e) {
             throw new IabException(IABHELPER_REMOTE_EXCEPTION, "Remote exception while refreshing inventory.", e);
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             throw new IabException(IABHELPER_BAD_RESPONSE, "Error parsing JSON response while refreshing inventory.", e);
         }
     }
@@ -692,14 +696,17 @@ public class IabHelper {
                 return IABHELPER_BAD_RESPONSE.code;
             }
 
-            ArrayList<String> ownedSkus = ownedItems.getStringArrayList(
-                        RESPONSE_INAPP_ITEM_LIST);
-            ArrayList<String> purchaseDataList = ownedItems.getStringArrayList(
-                        RESPONSE_INAPP_PURCHASE_DATA_LIST);
-            ArrayList<String> signatureList = ownedItems.getStringArrayList(
-                        RESPONSE_INAPP_SIGNATURE_LIST);
+            List<String> ownedSkus = ownedItems.getStringArrayList(RESPONSE_INAPP_ITEM_LIST);
+            List<String> purchaseDataList = ownedItems.getStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST);
+            List<String> signatureList = ownedItems.getStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST);
 
-            for (int i = 0; i < purchaseDataList.size(); ++i) {
+            if (signatureList.size() < purchaseDataList.size()
+                 || ownedSkus.size() < purchaseDataList.size()) {
+                logError("invalid data returned by service");
+                return ERROR.code;
+            }
+
+            for (int i = 0; i < purchaseDataList.size(); i++) {
                 String purchaseData = purchaseDataList.get(i);
                 String signature = signatureList.get(i);
                 String sku = ownedSkus.get(i);
@@ -743,7 +750,7 @@ public class IabHelper {
             }
         }
 
-        if (skuList.size() == 0) {
+        if (skuList.isEmpty()) {
             logDebug("queryPrices: nothing to do because there are no SKUs.");
             return OK.code;
         }

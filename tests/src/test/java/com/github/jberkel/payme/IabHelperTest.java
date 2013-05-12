@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import com.android.vending.billing.IInAppBillingService;
 import com.github.jberkel.payme.listener.OnConsumeFinishedListener;
+import com.github.jberkel.payme.listener.OnConsumeMultiFinishedListener;
 import com.github.jberkel.payme.listener.OnIabPurchaseFinishedListener;
 import com.github.jberkel.payme.listener.OnIabSetupFinishedListener;
 import com.github.jberkel.payme.listener.QueryInventoryFinishedListener;
@@ -34,7 +35,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.github.jberkel.payme.IabConsts.*;
-import static com.github.jberkel.payme.IabConsts.API_VERSION;
 import static com.github.jberkel.payme.Response.*;
 import static com.github.jberkel.payme.model.ItemType.INAPP;
 import static com.github.jberkel.payme.model.ItemType.SUBS;
@@ -71,13 +71,27 @@ public class IabHelperTest {
     @After public void after() { /* verify(service); */ }
 
     @Test public void shouldCreateHelper() throws Exception {
-        IabHelper helper = new IabHelper(Robolectric.application, "key");
+        IabHelper helper = new IabHelper(Robolectric.application, PUBLIC_KEY);
         assertThat(helper.isDisposed()).isFalse();
     }
 
     @Test public void shouldCreateHelperFromResource() throws Exception {
         IabHelper helper = new IabHelper(Robolectric.application);
         assertThat(helper.isDisposed()).isFalse();
+    }
+
+    @Test public void shouldCreateHelperWithValidator() throws Exception {
+        SignatureValidator validator = mock(SignatureValidator.class);
+        new IabHelper(Robolectric.application, validator);
+    }
+
+    @Test(expected = IllegalArgumentException.class) public void shouldRequireValidator() throws Exception {
+        new IabHelper(Robolectric.application, (SignatureValidator)null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldCheckPublicKeyEagerly() throws Exception {
+        new IabHelper(Robolectric.application, "INVALIDKEY");
     }
 
     @Test public void shouldStartSetup_SuccessCase() throws Exception {
@@ -444,7 +458,81 @@ public class IabHelperTest {
                 any(Bundle.class)))
                 .thenReturn(skuDetails);
 
-        helper.queryInventory(true, null ,null);
+        helper.queryInventory(true, null, null);
+    }
+
+
+    @Test(expected = IabException.class) public void shouldQueryInventoryButServiceReturnsInconsistentData() throws Exception {
+        shouldStartSetup_CheckForSubscriptions_Unavailable();
+
+        Bundle response = new Bundle();
+        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList()); // NB empty list here
+        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList("{}"));
+        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList(""));
+        response.putString(INAPP_CONTINUATION_TOKEN, "");
+
+        Bundle skuDetails = new Bundle();
+        skuDetails.putInt(RESPONSE_CODE, OK.code);
+
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
+                .thenReturn(response);
+
+        when(service.getSkuDetails(eq(API_VERSION),
+                eq(Robolectric.application.getPackageName()),
+                eq("inapp"),
+                any(Bundle.class)))
+                .thenReturn(skuDetails);
+
+        helper.queryInventory(true, null, null);
+    }
+
+
+    @Test public void shouldQueryInventoryWithEmptySkuDetails() throws Exception {
+        shouldStartSetup_CheckForSubscriptions_Unavailable();
+
+        Bundle response = new Bundle();
+
+        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList());
+        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList());
+        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList());
+        response.putString(INAPP_CONTINUATION_TOKEN, "");
+
+        Bundle skuDetails = new Bundle();
+
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
+                .thenReturn(response);
+
+        when(service.getSkuDetails(eq(API_VERSION),
+                eq(Robolectric.application.getPackageName()),
+                eq("inapp"),
+                any(Bundle.class)))
+                .thenReturn(skuDetails);
+
+        helper.queryInventory(true, null, null);
+    }
+
+    @Test public void shouldQueryInventoryEmptySkuDetails() throws Exception {
+        shouldStartSetup_CheckForSubscriptions_Unavailable();
+
+        Bundle response = new Bundle();
+
+        response.putStringArrayList(RESPONSE_INAPP_ITEM_LIST, asList());
+        response.putStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST, asList());
+        response.putStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST, asList());
+        response.putString(INAPP_CONTINUATION_TOKEN, "");
+
+        Bundle skuDetails = new Bundle();
+
+        when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
+                .thenReturn(response);
+
+        when(service.getSkuDetails(eq(API_VERSION),
+                eq(Robolectric.application.getPackageName()),
+                eq("inapp"),
+                any(Bundle.class)))
+                .thenReturn(skuDetails);
+
+        helper.queryInventory(true, null, null);
     }
 
 
@@ -584,7 +672,9 @@ public class IabHelperTest {
 
     @Test public void shouldConsumeInAppItem() throws Exception {
         shouldStartSetup_SuccessCase();
-        Purchase purchase = new Purchase("{ \"token\": \"foo\" }", "");
+        Purchase purchase = mock(Purchase.class);
+        when(purchase.getToken()).thenReturn("foo");
+        when(purchase.getItemType()).thenReturn(INAPP);
 
         when(service.consumePurchase(API_VERSION, Robolectric.application.getPackageName(), "foo")).thenReturn(OK.code);
         helper.consume(purchase);
@@ -592,7 +682,9 @@ public class IabHelperTest {
 
     @Test(expected = IabException.class) public void shouldConsumeInAppItemErrorResponse() throws Exception {
         shouldStartSetup_SuccessCase();
-        Purchase purchase = new Purchase("{ \"token\": \"foo\" }", "");
+        Purchase purchase = mock(Purchase.class);
+        when(purchase.getToken()).thenReturn("foo");
+        when(purchase.getItemType()).thenReturn(INAPP);
         when(service.consumePurchase(API_VERSION, Robolectric.application.getPackageName(), "foo")).thenReturn(ERROR.code);
         helper.consume(purchase);
     }
@@ -604,7 +696,7 @@ public class IabHelperTest {
         helper.consume(purchase);
     }
 
-    @Test public void shouldConsumeAsync() throws Exception {
+    @Test public void shouldConsumeAsyncSinglePurchase() throws Exception {
         shouldStartSetup_SuccessCase();
         Purchase purchase = mock(Purchase.class);
         when(purchase.getToken()).thenReturn("foo");
@@ -615,6 +707,33 @@ public class IabHelperTest {
         when(service.consumePurchase(API_VERSION, Robolectric.application.getPackageName(), "foo")).thenReturn(OK.code);
         helper.consumeAsync(purchase, listener);
         verify(listener).onConsumeFinished(purchase, new IabResult(OK));
+    }
+
+    @Test public void shouldConsumeAsyncMultiplePurchase() throws Exception {
+        shouldStartSetup_SuccessCase();
+        Purchase p1 = mock(Purchase.class);
+        when(p1.getToken()).thenReturn("foo");
+        when(p1.getItemType()).thenReturn(INAPP);
+
+        Purchase p2 = mock(Purchase.class);
+        when(p2.getToken()).thenReturn("bar");
+        when(p2.getItemType()).thenReturn(INAPP);
+
+        List<Purchase> purchases = new ArrayList<Purchase>();
+        purchases.add(p1);
+        purchases.add(p2);
+
+        OnConsumeMultiFinishedListener listener = mock(OnConsumeMultiFinishedListener.class);
+
+        when(service.consumePurchase(API_VERSION, Robolectric.application.getPackageName(), "foo")).thenReturn(OK.code);
+        when(service.consumePurchase(API_VERSION, Robolectric.application.getPackageName(), "bar")).thenReturn(ERROR.code);
+        helper.consumeAsync(purchases, listener);
+
+        List<IabResult> results = new ArrayList<IabResult>();
+        results.add(new IabResult(OK));
+        results.add(new IabResult(ERROR));
+
+        verify(listener).onConsumeMultiFinished(purchases, results);
     }
 
     // getResponseCodeFromBundle
@@ -639,6 +758,14 @@ public class IabHelperTest {
         Bundle b = new Bundle();
         b.putString(RESPONSE_CODE, "invalid");
         helper.getResponseCodeFromBundle(b);
+    }
+
+    // other methods
+    @Test(expected = IllegalStateException.class) public void testFlagAsync() throws Exception {
+        helper.flagStartAsync("something");
+        helper.flagEndAsync();
+        helper.flagStartAsync("something");
+        helper.flagStartAsync("something else");
     }
 
     private Context registerServiceWithPackageManager() {

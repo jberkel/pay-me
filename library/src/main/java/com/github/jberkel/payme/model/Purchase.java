@@ -65,6 +65,7 @@ public class Purchase {
     public String getSignature() { return mSignature; }
 
     @Override
-    public String toString() { return "PurchaseInfo(type:" + mItemType + "):" + mOriginalJson; }
-
+    public String toString() {
+        return "Purchase(type:" + mItemType + "):" + mOriginalJson;
+    }
 }

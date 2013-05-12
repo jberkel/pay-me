@@ -48,6 +48,8 @@ public class SkuDetails {
     }
 
     public SkuDetails(ItemType itemType, String sku, String type, String price, String title, String description) {
+        if (itemType == null) throw new IllegalArgumentException("itemType cannot be null");
+
         mItemType = itemType;
         mSku = sku;
         mType = type;

@@ -1,8 +1,6 @@
 package com.github.jberkel.payme.model;
 
 
-import com.github.jberkel.payme.model.ItemType;
-import com.github.jberkel.payme.model.Purchase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -30,5 +28,12 @@ public class PurchaseTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAcceptNullItemType() throws Exception {
         new Purchase(null, "{}", "");
+    }
+
+    @Test
+    public void shouldHaveToString() throws Exception {
+        String purchase = resourceAsString("purchase.json");
+        Purchase p = new Purchase(purchase, "signature");
+        assertThat(p.toString()).startsWith("Purchase(type:inapp)");
     }
 }

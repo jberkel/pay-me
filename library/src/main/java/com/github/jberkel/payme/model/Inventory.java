@@ -29,8 +29,6 @@ public class Inventory {
     private final Map<String,SkuDetails> mSkuMap = new HashMap<String,SkuDetails>();
     private final Map<String,Purchase> mPurchaseMap = new HashMap<String,Purchase>();
 
-    public Inventory() { }
-
     /** Returns the listing details for an in-app product. */
     public SkuDetails getSkuDetails(String sku) {
         return mSkuMap.get(sku);
@@ -64,7 +62,7 @@ public class Inventory {
      * a new Inventory.
      */
     public void erasePurchase(String sku) {
-        if (mPurchaseMap.containsKey(sku)) mPurchaseMap.remove(sku);
+        mPurchaseMap.remove(sku);
     }
 
     /** Returns a list of all owned product IDs. */

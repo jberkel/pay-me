@@ -43,10 +43,10 @@ public class DefaultSignatureValidator implements SignatureValidator {
     private static final String KEY_FACTORY_ALGORITHM = "RSA";
     private static final String SIGNATURE_ALGORITHM = "SHA1withRSA";
 
-    private final String mBase64EncodedKey;
+    private final PublicKey mPublicKey;
 
     public DefaultSignatureValidator(String base64EncodedKey) {
-        mBase64EncodedKey = base64EncodedKey;
+        mPublicKey = generatePublicKey(base64EncodedKey);
     }
 
     @Override
@@ -55,26 +55,49 @@ public class DefaultSignatureValidator implements SignatureValidator {
             Log.e(TAG, "data is null");
             return false;
         }
-        boolean verified;
+
         if (!TextUtils.isEmpty(signature)) {
-            PublicKey key = generatePublicKey(mBase64EncodedKey);
-            verified = verify(key, signedData, signature);
-            if (!verified) {
+            if (!verify(signedData, signature)) {
                 Log.w(TAG, "signature does not match data.");
                 return false;
             }
+        } else {
+            Log.w(TAG, "signature is empty");
         }
         return true;
     }
 
-    /**
-     * Generates a PublicKey instance from a string containing the
-     * Base64-encoded public key.
-     *
-     * @param encodedPublicKey Base64-encoded public key
-     * @throws IllegalArgumentException if encodedPublicKey is invalid
-     */
-    protected static PublicKey generatePublicKey(String encodedPublicKey) {
+    private boolean verify(String signedData, String signature) {
+        final byte[] decodedSig;
+        try {
+            decodedSig = Base64.decode(signature, Base64.DEFAULT);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Error decoding signature.");
+            return false;
+        }
+
+        try {
+            Signature sig = Signature.getInstance(SIGNATURE_ALGORITHM);
+            sig.initVerify(mPublicKey);
+            sig.update(signedData.getBytes());
+
+            if (!sig.verify(decodedSig)) {
+                Log.e(TAG, "Signature verification failed.");
+                return false;
+            } else {
+                return true;
+            }
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "NoSuchAlgorithmException.");
+        } catch (InvalidKeyException e) {
+            Log.e(TAG, "Invalid key specification.");
+        } catch (SignatureException e) {
+            Log.e(TAG, "Signature exception.");
+        }
+        return false;
+    }
+
+    private static PublicKey generatePublicKey(String encodedPublicKey) {
         try {
             byte[] decodedKey = Base64.decode(encodedPublicKey, Base64.DEFAULT);
             KeyFactory keyFactory = KeyFactory.getInstance(KEY_FACTORY_ALGORITHM);
@@ -86,44 +109,4 @@ public class DefaultSignatureValidator implements SignatureValidator {
             throw new IllegalArgumentException(e);
         }
     }
-
-    /**
-     * Verifies that the signature from the server matches the computed
-     * signature on the data.  Returns true if the data is correctly signed.
-     *
-     * @param publicKey  public key associated with the developer account
-     * @param signedData signed data from server
-     * @param signature  server signature
-     * @return true if the data and signature match
-     */
-    private static boolean verify(PublicKey publicKey, String signedData, String signature) {
-        final byte[] decodedSig;
-        try {
-            decodedSig = Base64.decode(signature, Base64.DEFAULT);
-        } catch (IllegalArgumentException e) {
-            Log.e(TAG, "Error decoding signature.");
-            return false;
-        }
-
-        Signature sig;
-        try {
-            sig = Signature.getInstance(SIGNATURE_ALGORITHM);
-            sig.initVerify(publicKey);
-            sig.update(signedData.getBytes());
-            if (!sig.verify(decodedSig)) {
-                Log.e(TAG, "Signature verification failed.");
-                return false;
-            }
-            return true;
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "NoSuchAlgorithmException.");
-        } catch (InvalidKeyException e) {
-            Log.e(TAG, "Invalid key specification.");
-        } catch (SignatureException e) {
-            Log.e(TAG, "Signature exception.");
-        }
-        return false;
-    }
-
-
 }
