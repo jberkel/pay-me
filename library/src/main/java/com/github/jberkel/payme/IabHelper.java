@@ -318,6 +318,7 @@ public class IabHelper {
             return true;
         } else {
             int responseCode = getResponseCodeFromBundle(intent.getExtras());
+            logDebug("handleActivityResult: resultCode="+intentResultCode+", response code="+responseCode);
 
             if (intentResultCode == RESULT_OK) {
                 if (responseCode == OK.code) {
@@ -334,7 +335,7 @@ public class IabHelper {
                 return true;
             } else if (intentResultCode == RESULT_CANCELED) {
                 logDebug("Purchase canceled - Response: " + getDescription(responseCode));
-                result = new IabResult(responseCode, "handleActivity canceled");
+                result = new IabResult(responseCode, null);
                 if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
                 return true;
             } else { // weird intent result code
@@ -557,7 +558,8 @@ public class IabHelper {
 
     private void handlePurchaseResult(String purchaseData, String dataSignature) {
         if (purchaseData == null || dataSignature == null) {
-            logError("BUG: either purchaseData or dataSignature is null.");
+            logError("BUG: either purchaseData or dataSignature is null." +
+                    " data="+purchaseData+", signature"+dataSignature);
             if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(
                     new IabResult(IABHELPER_UNKNOWN_ERROR, "IAB returned null purchaseData or dataSignature"), null);
             return;
