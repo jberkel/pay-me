@@ -767,8 +767,8 @@ public class IabHelper {
         ArrayList<String> responseList = skuDetails.getStringArrayList(
                 RESPONSE_GET_SKU_DETAILS_LIST);
 
-        for (String thisResponse : responseList) {
-            SkuDetails d = new SkuDetails(itemType, thisResponse);
+        for (String json : responseList) {
+            SkuDetails d = new SkuDetails(itemType, json);
             logDebug("Got sku details: " + d);
             inv.addSkuDetails(d);
         }
