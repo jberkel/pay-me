@@ -91,4 +91,12 @@ public class Inventory {
     public void addPurchase(Purchase p) {
         mPurchaseMap.put(p.getSku(), p);
     }
+
+    @Override
+    public String toString() {
+        return "Inventory{" +
+                "skus=" + mSkuMap.values() +
+                ", purchases=" + mPurchaseMap.values() +
+                '}';
+    }
 }

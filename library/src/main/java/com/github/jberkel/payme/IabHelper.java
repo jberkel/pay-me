@@ -559,9 +559,9 @@ public class IabHelper {
     private void handlePurchaseResult(String purchaseData, String dataSignature) {
         if (purchaseData == null || dataSignature == null) {
             logError("BUG: either purchaseData or dataSignature is null." +
-                    " data="+purchaseData+", signature"+dataSignature);
+                    " data="+purchaseData+", signature="+dataSignature);
             if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(
-                    new IabResult(IABHELPER_UNKNOWN_ERROR, "IAB returned null purchaseData or dataSignature"), null);
+                new IabResult(IABHELPER_UNKNOWN_ERROR, "IAB returned null purchaseData or dataSignature"), null);
             return;
         }
         try {
