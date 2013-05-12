@@ -38,7 +38,9 @@
                         <exclude>com/android/vending/billing/IInAppBillingService$Stub.class</exclude>
                         <exclude>com/android/vending/billing/IInAppBillingService$Stub$Proxy.class</exclude>
                     </excludes>
-                    <check/>
+                    <check>
+                        <instructionRatio>94</instructionRatio>
+                    </check>
                 </configuration>
 
                 <executions>

@@ -372,10 +372,10 @@ public class IabHelperTest {
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithCanceledResultCode() throws Exception {
         shouldStartIntentAfterSuccessfulLaunchPurchase();
         Intent data = new Intent();
-        data.putExtra(RESPONSE_CODE, OK.code);
+        data.putExtra(RESPONSE_CODE, ITEM_UNAVAILABLE.code);
 
         assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, Activity.RESULT_CANCELED, data)).isTrue();
-        verify(purchaseFinishedListener).onIabPurchaseFinished(new IabResult(IABHELPER_USER_CANCELLED), null);
+        verify(purchaseFinishedListener).onIabPurchaseFinished(new IabResult(ITEM_UNAVAILABLE), null);
     }
 
     @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWithUnknownResultCode() throws Exception {
@@ -383,7 +383,7 @@ public class IabHelperTest {
         Intent data = new Intent();
         data.putExtra(RESPONSE_CODE, OK.code);
 
-        assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, 23, data)).isTrue();
+        assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, 23, data)).isFalse();
         verify(purchaseFinishedListener).onIabPurchaseFinished(new IabResult(IABHELPER_UNKNOWN_PURCHASE_RESPONSE), null);
     }
 
