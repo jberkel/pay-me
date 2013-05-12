@@ -606,7 +606,7 @@ public class IabHelper {
     }
 
     // Checks that setup was done; if not, throws an exception.
-    private void checkSetupDone(String operation) {
+    protected void checkSetupDone(String operation) {
         if (!mSetupDone) {
             logError("Illegal state for operation (" + operation + "): IAB helper is not set up.");
             throw new IllegalStateException("IAB helper is not set up. Can't perform operation: " + operation);

@@ -97,6 +97,29 @@ public class IabHelperTest {
         verify(setupListener).onIabSetupFinished(new IabResult(OK));
     }
 
+    @Test public void shouldBeInSetupStateWhenFinishedListenerIsCalled() throws Exception {
+        registerServiceWithPackageManager();
+        helper.startSetup(new OnIabSetupFinishedListener() {
+            @Override
+            public void onIabSetupFinished(IabResult result) {
+                assertThat(result.getResponse()).isEqualTo(OK);
+                assertThat(helper.isDisposed()).isFalse();
+                helper.checkSetupDone("test");
+            }
+        });
+    }
+
+    @Test public void shouldBeInSetupStateWhenFinishedListenerIsCalledNoBillingAvailable() throws Exception {
+        helper.startSetup(new OnIabSetupFinishedListener() {
+            @Override
+            public void onIabSetupFinished(IabResult result) {
+                assertThat(result.getResponse()).isEqualTo(BILLING_UNAVAILABLE);
+                assertThat(helper.isDisposed()).isFalse();
+                helper.checkSetupDone("test");
+            }
+        });
+    }
+
     @Test public void shouldStartSetup_BillingServiceDoesNotExist() throws Exception {
         helper.startSetup(setupListener);
         verify(setupListener).onIabSetupFinished(new IabResult(BILLING_UNAVAILABLE));
