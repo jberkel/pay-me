@@ -359,15 +359,8 @@ public class IabHelper {
         String dataSignature = data.getStringExtra(RESPONSE_INAPP_SIGNATURE);
 
         if (resultCode == Activity.RESULT_OK && responseCode == OK.code) {
-            logDebug("Successful resultcode from purchase activity.");
-            logDebug("Purchase data: " + purchaseData);
-            logDebug("Data signature: " + dataSignature);
-            logDebug("Extras: " + data.getExtras());
-            logDebug("Expected item type: " + mPurchasingItemType);
-
             if (purchaseData == null || dataSignature == null) {
                 logError("BUG: either purchaseData or dataSignature is null.");
-                logDebug("Extras: " + data.getExtras().toString());
                 result = new IabResult(IABHELPER_UNKNOWN_ERROR, "IAB returned null purchaseData or dataSignature");
                 if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
                 return true;
@@ -619,19 +612,14 @@ public class IabHelper {
     }
 
     private int queryPurchases(Inventory inv, ItemType itemType) throws JSONException, RemoteException {
-        // Query purchases
         logDebug("Querying owned items, item type: " + itemType);
-        logDebug("Package name: " + mContext.getPackageName());
         boolean verificationFailed = false;
         String continueToken = null;
-
         do {
-            logDebug("Calling getPurchases with continuation token: " + continueToken);
             Bundle ownedItems = mService.getPurchases(API_VERSION, mContext.getPackageName(),
                     itemType.toString(), continueToken);
 
             int response = getResponseCodeFromBundle(ownedItems);
-            logDebug("Owned items response: " + String.valueOf(response));
             if (response != OK.code) {
                 logDebug("getPurchases() failed: " + getDescription(response));
                 return response;
@@ -657,9 +645,7 @@ public class IabHelper {
             for (int i = 0; i < purchaseDataList.size(); i++) {
                 String purchaseData = purchaseDataList.get(i);
                 String signature = signatureList.get(i);
-                String sku = ownedSkus.get(i);
                 if (mSignatureValidator.validate(purchaseData, signature)) {
-                    logDebug("Sku is owned: " + sku);
                     Purchase purchase = new Purchase(itemType, purchaseData, signature);
 
                     if (TextUtils.isEmpty(purchase.getToken())) {
@@ -677,7 +663,6 @@ public class IabHelper {
                     verificationFailed = true;
                 }
             }
-
             continueToken = ownedItems.getString(INAPP_CONTINUATION_TOKEN);
             logDebug("Continuation token: " + continueToken);
         } while (!TextUtils.isEmpty(continueToken));
@@ -699,7 +684,7 @@ public class IabHelper {
         }
 
         if (skuList.isEmpty()) {
-            logDebug("queryPrices: nothing to do because there are no SKUs.");
+            logDebug("querySkuDetails: nothing to do because there are no SKUs.");
             return OK.code;
         }
 
@@ -711,7 +696,7 @@ public class IabHelper {
         if (!skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
             int response = getResponseCodeFromBundle(skuDetails);
             if (response != OK.code) {
-                logDebug("getSkuDetails() failed: " + getDescription(response));
+                logWarn("getSkuDetails() failed: " + getDescription(response));
                 return response;
             } else {
                 logError("getSkuDetails() returned a bundle with neither an error nor a detail list.");
@@ -723,9 +708,7 @@ public class IabHelper {
                 RESPONSE_GET_SKU_DETAILS_LIST);
 
         for (String json : responseList) {
-            SkuDetails d = new SkuDetails(itemType, json);
-            logDebug("Got sku details: " + d);
-            inv.addSkuDetails(d);
+            inv.addSkuDetails(new SkuDetails(itemType, json));
         }
         return OK.code;
     }
