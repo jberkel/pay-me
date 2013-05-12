@@ -1,9 +1,18 @@
 package com.github.jberkel.payme.security;
 
+import android.util.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -40,6 +49,28 @@ public class DefaultSignatureValidatorTest {
     @Test
     public void shouldVerifyPurchaseWithValidKeyAndInvalidSignatureShouldThrow() throws Exception {
         assertThat(validator.validate("{}", "signature")).isFalse();
+    }
+
+    @Test public void shouldValidateTheSHA1WithRSASignature() throws Exception {
+        // create a public/private key pair
+        KeyFactory keyFactory   = KeyFactory.getInstance("RSA");
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        KeyPair pair = keyGen.generateKeyPair();
+        EncodedKeySpec encoded = new X509EncodedKeySpec(pair.getPublic().getEncoded());
+        PublicKey encodedPublic = keyFactory.generatePublic(encoded);
+        String encodePublicBase64 = Base64.encodeToString(encodedPublic.getEncoded(), Base64.DEFAULT);
+
+        // and sign some data with it
+        Signature sig = Signature.getInstance("SHA1WithRSA");
+        sig.initSign(pair.getPrivate());
+        String data = "some sample data";
+        sig.update(data.getBytes());
+
+        String signature = Base64.encodeToString(sig.sign(), Base64.DEFAULT);
+
+        SignatureValidator validator = new DefaultSignatureValidator(encodePublicBase64);
+        assertThat(validator.validate(data, signature)).isTrue();
+        assertThat(validator.validate(data+"extraData", signature)).isFalse();
     }
 
     private static final String ENCODED_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzoFJ+dq/PQo2u71ndt2k\n" +
