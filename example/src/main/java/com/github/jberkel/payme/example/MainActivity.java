@@ -178,7 +178,7 @@ public class MainActivity extends Activity {
 
                 // IAB is fully set up. Now, let's get an inventory of stuff we own.
                 Log.d(TAG, "Setup successful. Querying inventory.");
-                mHelper.queryInventoryAsync(mGotInventoryListener);
+                mHelper.queryInventoryAsync(true, null, mGotInventoryListener);
             }
         });
     }
@@ -256,7 +256,7 @@ public class MainActivity extends Activity {
          *        an empty string, but on a production app you should carefully generate this. */
         String payload = "";
 
-        mHelper.launchPurchaseFlow(this, SKU_GAS, RC_REQUEST,
+        mHelper.launchPurchaseFlow(this, SKU_GAS, ItemType.INAPP, RC_REQUEST,
                 mPurchaseFinishedListener, payload);
     }
 
@@ -270,7 +270,7 @@ public class MainActivity extends Activity {
          *        an empty string, but on a production app you should carefully generate this. */
         String payload = "";
 
-        mHelper.launchPurchaseFlow(this, SKU_PREMIUM, RC_REQUEST,
+        mHelper.launchPurchaseFlow(this, SKU_PREMIUM, ItemType.INAPP, RC_REQUEST,
                 mPurchaseFinishedListener, payload);
     }
 

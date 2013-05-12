@@ -301,7 +301,7 @@ public class IabHelperTest {
         when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", "subs", "")).thenReturn(response);
 
         Activity activity = mock(Activity.class);
-        helper.launchSubscriptionPurchaseFlow(activity, "sku", TEST_REQUEST_CODE, purchaseFinishedListener, "");
+        helper.launchPurchaseFlow(activity, "sku", SUBS, TEST_REQUEST_CODE, purchaseFinishedListener, "");
         verify(activity).startIntentSenderForResult(any(IntentSender.class), eq(TEST_REQUEST_CODE), any(Intent.class), eq(0), eq(0), eq(0));
     }
 
@@ -313,7 +313,7 @@ public class IabHelperTest {
 
         when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", "subs", "")).thenReturn(response);
         Activity activity = mock(Activity.class);
-        helper.launchSubscriptionPurchaseFlow(activity, "sku", TEST_REQUEST_CODE, purchaseFinishedListener);
+        helper.launchPurchaseFlow(activity, "sku", SUBS, TEST_REQUEST_CODE, purchaseFinishedListener, "");
         verify(activity).startIntentSenderForResult(any(IntentSender.class), eq(TEST_REQUEST_CODE), any(Intent.class), eq(0), eq(0), eq(0));
     }
 
@@ -706,7 +706,7 @@ public class IabHelperTest {
         when(service.getPurchases(API_VERSION, Robolectric.application.getPackageName(), "inapp", null))
                 .thenReturn(response);
 
-        helper.queryInventoryAsync(false, null, listener);
+        helper.queryInventoryAsync(false, null, null, listener);
         verify(listener).onQueryInventoryFinished(eq(new IabResult(OK)), any(Inventory.class));
     }
 

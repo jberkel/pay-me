@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
 
-import static com.github.jberkel.payme.QueryInventoryTask.QueryArgs;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -28,34 +27,34 @@ public class QueryInventoryTaskTest {
 
     @Test public void shouldQueryInventory() throws Exception {
         Inventory inventory = mock(Inventory.class);
-        when(iabHelper.queryInventory(false, null)).thenReturn(inventory);
-        Inventory result = task.execute(new QueryArgs(false, null)).get();
+        when(iabHelper.queryInventory(false, null, null)).thenReturn(inventory);
+        Inventory result = task.execute(new QueryInventoryTask.Args(false, null, null)).get();
         assertThat(result).isSameAs(inventory);
         verify(listener).onQueryInventoryFinished(new IabResult(Response.OK), inventory);
     }
 
     @Test public void shouldQueryInventoryWithException() throws Exception {
-        when(iabHelper.queryInventory(false, null)).thenThrow(new IabException(Response.ERROR, ""));
-        Inventory result = task.execute(new QueryArgs(false, null)).get();
+        when(iabHelper.queryInventory(false, null, null)).thenThrow(new IabException(Response.ERROR, ""));
+        Inventory result = task.execute(new QueryInventoryTask.Args(false, null, null)).get();
         assertThat(result).isNull();
         verify(listener).onQueryInventoryFinished(new IabResult(Response.ERROR), null);
     }
 
     @Test public void shouldNotNotifyListenerIfHelperWasDisposed() throws Exception {
         Inventory inventory = mock(Inventory.class);
-        when(iabHelper.queryInventory(false, null)).thenReturn(inventory);
+        when(iabHelper.queryInventory(false, null, null)).thenReturn(inventory);
         when(iabHelper.isDisposed()).thenReturn(true);
-        task.execute(new QueryArgs(false, null)).get();
+        task.execute(new QueryInventoryTask.Args(false, null, null)).get();
         verifyZeroInteractions(listener);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldCheckArgumentsNull() throws Exception {
-        task.doInBackground((QueryArgs) null);
+        task.doInBackground((QueryInventoryTask.Args) null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldCheckArgumentsEmpty() throws Exception {
-        task.doInBackground(new QueryArgs[0]);
+        task.doInBackground(new QueryInventoryTask.Args[0]);
     }
 }

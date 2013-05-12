@@ -9,7 +9,7 @@ import java.util.List;
 
 import static com.github.jberkel.payme.Response.OK;
 
-public class QueryInventoryTask extends AsyncTask<QueryInventoryTask.QueryArgs, Void, Inventory> {
+public class QueryInventoryTask extends AsyncTask<QueryInventoryTask.Args, Void, Inventory> {
     private final IabHelper mIabHelper;
     private final QueryInventoryFinishedListener mListener;
     private IabResult mResult = new IabResult(OK);
@@ -25,10 +25,11 @@ public class QueryInventoryTask extends AsyncTask<QueryInventoryTask.QueryArgs, 
     }
 
     @Override
-    protected Inventory doInBackground(QueryArgs... args) {
+    protected Inventory doInBackground(Args... args) {
         if (args == null || args.length == 0 || args[0] == null) throw new IllegalArgumentException("need args");
+        final Args arg = args[0];
         try {
-            return mIabHelper.queryInventory(args[0].queryDetails, args[0].skus);
+            return mIabHelper.queryInventory(arg.queryDetails, arg.skus, arg.subSkus);
         } catch (IabException ex) {
             mResult = ex.getResult();
             return null;
@@ -43,12 +44,14 @@ public class QueryInventoryTask extends AsyncTask<QueryInventoryTask.QueryArgs, 
         }
     }
 
-    static class QueryArgs {
+    static class Args {
         final boolean queryDetails;
         final List<String> skus;
-        public QueryArgs(boolean querySkuDetails, List<String> moreSkus) {
+        final List<String> subSkus;
+        public Args(boolean querySkuDetails, List<String> moreSkus, List<String> moreSubSkus) {
             queryDetails = querySkuDetails;
             skus = moreSkus;
+            subSkus = moreSubSkus;
         }
     }
 }
