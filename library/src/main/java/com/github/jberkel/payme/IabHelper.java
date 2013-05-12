@@ -120,15 +120,6 @@ public class IabHelper {
     private SignatureValidator mSignatureValidator;
 
     /**
-     * Like {@link #IabHelper(android.content.Context, String)}, but uses the string resource
-     * <code>com_github_jberkel_payme_public_key</code> to resolve a public key.
-     * @param ctx Your application or Activity context. Needed to bind to the in-app billing service.
-     */
-    public IabHelper(Context ctx) {
-        this(ctx, ctx.getString(R.string.com_github_jberkel_payme_public_key));
-    }
-
-    /**
      * Creates an instance. After creation, it will not yet be ready to use. You must perform
      * setup by calling {@link #startSetup} and wait for setup to complete. This constructor does not
      * block and is safe to call from a UI thread.
@@ -194,16 +185,13 @@ public class IabHelper {
                 mService = getInAppBillingService(service);
 
                 String packageName = mContext.getPackageName();
+                IabResult result = new IabResult(OK);
                 try {
                     logDebug("Checking for in-app billing 3 support.");
 
                     // check for in-app billing v3 support
                     int response = mService.isBillingSupported(API_VERSION, packageName, INAPP.toString());
-                    if (response != OK.code) {
-                        if (listener != null) {
-                            listener.onIabSetupFinished(new IabResult(response, null));
-                        }
-                    } else {
+                    if (response == OK.code) {
                         logDebug("In-app billing version 3 supported for " + packageName);
                         mInAppSupported = true;
 
@@ -215,17 +203,18 @@ public class IabHelper {
                         } else {
                             logDebug("Subscriptions NOT AVAILABLE. Response: "+response + " " + Response.getDescription(response));
                         }
-                    }
-                    if (listener != null) {
-                        listener.onIabSetupFinished(new IabResult(OK));
+                    } else {
+                        result = new IabResult(response, null);
                     }
                 } catch (RemoteException e) {
-                    if (listener != null) {
-                        listener.onIabSetupFinished(new IabResult(IABHELPER_REMOTE_EXCEPTION));
-                    }
+                    result = new IabResult(IABHELPER_REMOTE_EXCEPTION);
                     Log.e(mDebugTag, "RemoteException while setting up in-app billing.", e);
                 } finally {
                     mSetupDone = true;
+
+                    if (listener != null) {
+                        listener.onIabSetupFinished(result);
+                    }
                 }
             }
         };

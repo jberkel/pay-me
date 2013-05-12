@@ -76,11 +76,6 @@ public class IabHelperTest {
         assertThat(helper.isDisposed()).isFalse();
     }
 
-    @Test public void shouldCreateHelperFromResource() throws Exception {
-        IabHelper helper = new IabHelper(Robolectric.application);
-        assertThat(helper.isDisposed()).isFalse();
-    }
-
     @Test public void shouldCreateHelperWithValidator() throws Exception {
         SignatureValidator validator = mock(SignatureValidator.class);
         new IabHelper(Robolectric.application, validator);

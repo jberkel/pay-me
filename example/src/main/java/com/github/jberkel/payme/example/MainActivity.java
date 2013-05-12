@@ -23,16 +23,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-
 import com.github.jberkel.payme.IabHelper;
 import com.github.jberkel.payme.IabResult;
-import com.github.jberkel.payme.model.Inventory;
-import com.github.jberkel.payme.model.ItemType;
 import com.github.jberkel.payme.listener.OnConsumeFinishedListener;
 import com.github.jberkel.payme.listener.OnIabPurchaseFinishedListener;
 import com.github.jberkel.payme.listener.OnIabSetupFinishedListener;
-import com.github.jberkel.payme.model.Purchase;
 import com.github.jberkel.payme.listener.QueryInventoryFinishedListener;
+import com.github.jberkel.payme.model.Inventory;
+import com.github.jberkel.payme.model.ItemType;
+import com.github.jberkel.payme.model.Purchase;
+import com.github.jberkel.payme.security.SignatureValidator;
 
 
 /**
@@ -140,9 +140,22 @@ public class MainActivity extends Activity {
          * want to make it easy for an attacker to replace the public key with one
          * of their own and then fake messages from the server.
          */
+        final String KEY = "application-app-key";
+
         // Create the helper, passing it our context and the public key to verify signatures with
         Log.d(TAG, "Creating IAB helper.");
-        mHelper = new IabHelper(this);
+
+        if (!KEY.equals("application-app-key")) {
+            mHelper = new IabHelper(this, KEY);
+        } else {
+            // this is just for testing purposes - don't use in your own app!
+            mHelper = new IabHelper(this, new SignatureValidator() {
+                @Override
+                public boolean validate(String signedData, String signature) {
+                    return true;
+                }
+            });
+        }
 
         // enable debug logging (for a production application, you should set this to false).
         mHelper.enableDebugLogging(true);
