@@ -1,6 +1,8 @@
 package com.github.jberkel.payme;
 
 public class IabConsts {
+    public static final int API_VERSION = 3;
+
     // Keys for the responses from InAppBillingService
     public static final String RESPONSE_CODE = "RESPONSE_CODE";
     public static final String RESPONSE_GET_SKU_DETAILS_LIST = "DETAILS_LIST";

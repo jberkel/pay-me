@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.github.jberkel.payme.IabConsts.*;
-import static com.github.jberkel.payme.IabHelper.API_VERSION;
+import static com.github.jberkel.payme.IabConsts.API_VERSION;
 import static com.github.jberkel.payme.Response.*;
 import static com.github.jberkel.payme.model.ItemType.INAPP;
 import static com.github.jberkel.payme.model.ItemType.SUBS;

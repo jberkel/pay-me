@@ -83,8 +83,7 @@ import static com.github.jberkel.payme.Response.*;
  *
  */
 public class IabHelper {
-    static final Intent BIND_BILLING_SERVICE = new Intent("com.android.vending.billing.InAppBillingService.BIND");
-    public static final int API_VERSION = 3;
+    protected static final Intent BIND_BILLING_SERVICE = new Intent("com.android.vending.billing.InAppBillingService.BIND");
 
     private boolean mDebugLog;
     private String mDebugTag = "IabHelper";
@@ -142,8 +141,8 @@ public class IabHelper {
      */
     public IabHelper(Context ctx, String base64PublicKey) {
         mContext = ctx.getApplicationContext();
-        logDebug("IAB helper created.");
         mSignatureValidator = new DefaultSignatureValidator(base64PublicKey);
+        logDebug("IAB helper created.");
     }
 
     /**
@@ -208,7 +207,7 @@ public class IabHelper {
                             logDebug("Subscriptions AVAILABLE.");
                             mSubscriptionsSupported = true;
                         } else {
-                            logDebug("Subscriptions NOT AVAILABLE. Response: " + response);
+                            logDebug("Subscriptions NOT AVAILABLE. Response: "+response + " " + Response.getDescription(response));
                         }
                     }
                 } catch (RemoteException e) {
