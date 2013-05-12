@@ -3,8 +3,8 @@
 [![Build Status](https://secure.travis-ci.org/jberkel/pay-me.png?branch=master)](http://travis-ci.org/jberkel/pay-me)
 
 An Android library for handling In-App-Billing V3 ([IABv3][]), based on Google's [marketbilling][] sample code.
-The goal of this project is to build a reliable and tested library which can easily be included as an [apklib][] 
-in your projects.
+The goal of this project is to build a reliable and tested library which can easily be included as an [apklib][]
+in your (Maven based) projects.
 
 Google's sample code has been refactored and made testable - at the moment there are over 100 unit tests covering
 most of the code base. However it has not been used in a published application yet.
@@ -29,7 +29,7 @@ Add a maven dependency in your main project:
 </dependency>
 ```
 
-Instantiate and use the IabHelper class in your activity:
+Instantiate and use the [IabHelper][] in your activity:
 
 ```java
 @Override public void onCreate(Bundle bundle) {
@@ -38,14 +38,22 @@ Instantiate and use the IabHelper class in your activity:
         public void onIabSetupFinished(IabResult result) {
           if (result.isSuccess()) {
               // helper is ready to use
-              mIabHelper.queryInventoryAsync(new QueryInventoryFinishedListener() {
-                  public void onQueryInventoryFinished(IabResult result, Inventory inv) {
-                    // check inventory
-                  }
-              });
+              mIabHelper.launchPurchaseFlow(this,
+                 "android.test.purchased",
+                  ItemType.IN_APP,
+                  0,
+                  new OnIabPurchaseFinishedListener() {
+                     public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
+                        // handle purchase result
+                     }
+                  }, null);
           }
         }
     });
+}
+
+@Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    mIabHelper.handleActivityResult(requestCode, resultCode, data);
 }
 ```
 
@@ -58,3 +66,5 @@ This application is released under the terms of the [Apache License, Version 2.0
 [IABv3]: http://developer.android.com/google/play/billing/api.html
 [marketbilling]: https://code.google.com/p/marketbilling/
 [apklib]: https://code.google.com/p/maven-android-plugin/wiki/ApkLib
+[IabHelper]: https://github.com/jberkel/pay-me/blob/master/library/src/main/java/com/github/jberkel/payme/IabHelper.java
+
