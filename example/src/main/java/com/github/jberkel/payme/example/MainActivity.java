@@ -178,7 +178,7 @@ public class MainActivity extends Activity {
 
                 // IAB is fully set up. Now, let's get an inventory of stuff we own.
                 Log.d(TAG, "Setup successful. Querying inventory.");
-                mHelper.queryInventoryAsync(true, null, mGotInventoryListener);
+                mHelper.queryInventoryAsync(mGotInventoryListener);
             }
         });
     }

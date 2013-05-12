@@ -81,6 +81,7 @@ import static com.github.jberkel.payme.Response.*;
  * has not yet completed will result in an exception being thrown.
  *
  * @author Bruno Oliveira (Google)
+ * @author Jan Berkel
  */
 public class IabHelper {
     protected static final Intent BIND_BILLING_SERVICE = new Intent("com.android.vending.billing.InAppBillingService.BIND");
@@ -403,7 +404,7 @@ public class IabHelper {
             }
         } else if (resultCode == Activity.RESULT_CANCELED) {
             logDebug("Purchase canceled - Response: " + getDescription(responseCode));
-            result = new IabResult(IABHELPER_USER_CANCELLED);
+            result = new IabResult(USER_CANCELED);
             if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
         } else {
             logError("Purchase failed. Result code: " + Integer.toString(resultCode)
@@ -485,6 +486,15 @@ public class IabHelper {
         checkNotDisposed();
         checkSetupDone("queryInventory");
         new QueryInventoryTask(this, listener).execute(new QueryInventoryTask.Args(querySkuDetails, moreSkus, moreSubSkus));
+    }
+
+    /**
+     * Convenience method which queries for all purchased items, including details.
+     * See {@link #queryInventoryAsync(boolean, java.util.List, java.util.List, QueryInventoryFinishedListener)}
+     * @param listener The listener to notify when the refresh operation completes.
+     */
+    public void queryInventoryAsync(final @Nullable QueryInventoryFinishedListener listener) {
+        queryInventoryAsync(true, null, null, listener);
     }
 
     /**
