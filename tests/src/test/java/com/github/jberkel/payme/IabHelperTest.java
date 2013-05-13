@@ -65,8 +65,7 @@ public class IabHelperTest {
                 return service;
             }
         };
-        helper.enableDebugLogging(true);
-
+        helper.enableDebugLogging(true, getClass().getSimpleName());
         ShadowLog.stream = System.out;
     }
     @After public void after() { /* verify(service); */ }

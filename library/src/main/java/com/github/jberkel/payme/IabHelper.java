@@ -89,26 +89,21 @@ import static com.github.jberkel.payme.model.ItemType.SUBS;
 public class IabHelper {
     protected static final Intent BIND_BILLING_SERVICE = new Intent("com.android.vending.billing.InAppBillingService.BIND");
 
-    private boolean mDebugLog;
-    private String mDebugTag = "IabHelper";
-
-    private boolean mSetupDone;
-    private boolean mDisposed;
-    private boolean mSubscriptionsSupported;
-    private boolean mInAppSupported;
-
-    private boolean mAsyncInProgress;
-
-    // if mAsyncInProgress == true, what asynchronous operation is in progress? (for logging/debugging)
-    private String mAsyncOperation = "";
-
     private Context mContext;
-
     private IInAppBillingService mService;
     private BillingServiceConnection mServiceConn;
 
     @NotNull private PurchaseFlowState mPurchaseFlowState = PurchaseFlowState.EMPTY;
     @NotNull private SignatureValidator mSignatureValidator;
+
+    private boolean mSetupDone, mDisposed;
+    private boolean mSubscriptionsSupported, mInAppSupported;
+
+    private boolean mDebugLog;
+    private String mDebugTag = "IabHelper";
+    private boolean mAsyncInProgress;
+    // if mAsyncInProgress == true, what asynchronous operation is in progress? (for logging/debugging)
+    private String mAsyncOperation = "";
 
     /**
      * Creates an instance. After creation, it will not yet be ready to use. You must perform
@@ -139,7 +134,6 @@ public class IabHelper {
         mSignatureValidator = validator;
         logDebug("IAB helper created.");
     }
-
 
     /**
      * Starts the setup process. This will start up the setup process asynchronously.
@@ -186,14 +180,6 @@ public class IabHelper {
         mServiceConn = null;
         mService = null;
         mPurchaseFlowState = PurchaseFlowState.EMPTY;
-    }
-
-    /**
-     * Returns whether subscriptions are supported.
-     */
-    public boolean subscriptionsSupported() {
-        checkNotDisposed();
-        return mSubscriptionsSupported;
     }
 
     /**
@@ -482,9 +468,16 @@ public class IabHelper {
     }
 
     /**
+     * Returns whether subscriptions are supported.
+     */
+    public boolean subscriptionsSupported() {
+        checkNotDisposed();
+        return mSubscriptionsSupported;
+    }
+
+    /**
      * Enables or disable debug logging through LogCat.
      */
-    @SuppressWarnings("UnusedDeclaration")
     public void enableDebugLogging(boolean enable, String tag) {
         checkNotDisposed();
         enableDebugLogging(enable);
@@ -541,7 +534,9 @@ public class IabHelper {
         if (mDisposed) throw new IllegalStateException("IabHelper was disposed of, so it cannot be used.");
     }
 
-    private void handlePurchaseResult(String purchaseData, String dataSignature, PurchaseFlowState purchaseState) {
+    private void handlePurchaseResult(String purchaseData,
+                                      String dataSignature,
+                                      PurchaseFlowState purchaseState) {
         if (purchaseData == null || dataSignature == null) {
             logError("BUG: either purchaseData or dataSignature is null." +
                     " data="+purchaseData+", signature="+dataSignature);
@@ -553,16 +548,16 @@ public class IabHelper {
             Purchase purchase = new Purchase(purchaseState.itemType, purchaseData, dataSignature);
             if (!mSignatureValidator.validate(purchaseData, dataSignature)) {
                 logError("Purchase signature verification FAILED for " + purchase);
-                mPurchaseFlowState.onIabPurchaseFinished(
+                purchaseState.onIabPurchaseFinished(
                         new IabResult(IABHELPER_VERIFICATION_FAILED, "Signature verification failed for purchase " + purchase),
                         purchase);
                 return;
             }
             logDebug("Purchase signature successfully verified.");
-            mPurchaseFlowState.onIabPurchaseFinished(new IabResult(OK), purchase);
+            purchaseState.onIabPurchaseFinished(new IabResult(OK), purchase);
         } catch (JSONException e) {
             logError("Failed to parse purchase data.", e);
-            mPurchaseFlowState.onIabPurchaseFinished(
+            purchaseState.onIabPurchaseFinished(
                 new IabResult(IABHELPER_BAD_RESPONSE, "Failed to parse purchase data."), null);
         }
     }
@@ -657,10 +652,7 @@ public class IabHelper {
                 return IABHELPER_BAD_RESPONSE.code;
             }
         }
-
-        ArrayList<String> responseList = skuDetails.getStringArrayList(
-                RESPONSE_GET_SKU_DETAILS_LIST);
-
+        ArrayList<String> responseList = skuDetails.getStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST);
         for (String json : responseList) {
             inv.addSkuDetails(new SkuDetails(itemType, json));
         }

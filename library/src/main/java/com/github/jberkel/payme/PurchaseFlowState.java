@@ -9,13 +9,13 @@ import static com.github.jberkel.payme.model.ItemType.UNKNOWN;
 
 class PurchaseFlowState implements OnIabPurchaseFinishedListener {
     static final PurchaseFlowState EMPTY = new PurchaseFlowState(-1, UNKNOWN, null);
+
     /** The request code used to launch purchase flow */
     final int requestCode;
     /** The item type of the current purchase flow */
     final ItemType itemType;
     /**  The listener registered on launchPurchaseFlow, which we have to call back when the purchase finishes */
-    @Nullable
-    final OnIabPurchaseFinishedListener listener;
+    @Nullable final OnIabPurchaseFinishedListener listener;
 
     PurchaseFlowState(int requestCode, ItemType itemType, @Nullable OnIabPurchaseFinishedListener listener) {
         if (itemType == null) throw new IllegalArgumentException("itemType cannot be null");
