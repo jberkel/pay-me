@@ -12,7 +12,7 @@ import java.util.List;
 
 import static com.github.jberkel.payme.Response.OK;
 
-public class ConsumeTask extends AsyncTask<Purchase, Void, List<IabResult>> {
+class ConsumeTask extends AsyncTask<Purchase, Void, List<IabResult>> {
     private final IabHelper mIabHelper;
     private final OnConsumeFinishedListener mSingleListener;
     private final OnConsumeMultiFinishedListener mMultiListener;

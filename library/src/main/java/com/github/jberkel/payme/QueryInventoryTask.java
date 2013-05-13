@@ -9,7 +9,7 @@ import java.util.List;
 
 import static com.github.jberkel.payme.Response.OK;
 
-public class QueryInventoryTask extends AsyncTask<QueryInventoryTask.Args, Void, Inventory> {
+class QueryInventoryTask extends AsyncTask<QueryInventoryTask.Args, Void, Inventory> {
     private final IabHelper mIabHelper;
     private final QueryInventoryFinishedListener mListener;
     private IabResult mResult = new IabResult(OK);

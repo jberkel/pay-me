@@ -1,6 +1,6 @@
 package com.github.jberkel.payme;
 
-public class IabConsts {
+class IabConsts {
     public static final int API_VERSION = 3;
 
     // Keys for the responses from InAppBillingService
