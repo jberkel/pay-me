@@ -87,7 +87,7 @@ import static com.github.jberkel.payme.model.ItemType.SUBS;
  * @author Jan Berkel
  */
 public class IabHelper {
-    protected static final Intent BIND_BILLING_SERVICE = new Intent("com.android.vending.billing.InAppBillingService.BIND");
+    /* package */ static final Intent BIND_BILLING_SERVICE = new Intent("com.android.vending.billing.InAppBillingService.BIND");
 
     private Context mContext;
     private IInAppBillingService mService;
@@ -469,14 +469,14 @@ public class IabHelper {
     }
 
     // Checks that setup was done; if not, throws an exception.
-    protected void checkSetupDone(String operation) {
+    /* package */ void checkSetupDone(String operation) {
         if (!mSetupDone) {
             logError("Illegal state for operation (" + operation + "): IAB helper is not set up.");
             throw new IllegalStateException("IAB helper is not set up. Can't perform operation: " + operation);
         }
     }
 
-    protected int getResponseCodeFromBundle(Bundle bundle) {
+    /* package */ int getResponseCodeFromBundle(Bundle bundle) {
         Object o;
         if (bundle == null || ((o = bundle.get(RESPONSE_CODE)) == null)) {
             logDebug("Bundle with null response code, assuming OK (known issue)");
@@ -491,7 +491,7 @@ public class IabHelper {
         }
     }
 
-    protected void flagStartAsync(String operation) {
+    /* package */ void flagStartAsync(String operation) {
         if (mAsyncInProgress) throw new IllegalStateException("Can't start async operation (" +
                 operation + ") because another async operation(" + mAsyncOperation + ") is in progress.");
         mAsyncOperation = operation;
@@ -499,13 +499,13 @@ public class IabHelper {
         logDebug("Starting async operation: " + operation);
     }
 
-    protected void flagEndAsync() {
+    /* package */ void flagEndAsync() {
         logDebug("Ending async operation: " + mAsyncOperation);
         mAsyncOperation = "";
         mAsyncInProgress = false;
     }
 
-    protected boolean isDisposed() {
+    /* package */  boolean isDisposed() {
         return mDisposed;
     }
 
@@ -677,11 +677,11 @@ public class IabHelper {
     }
 
     // for testing
-    protected IInAppBillingService getInAppBillingService(IBinder service) {
+    /* package */ IInAppBillingService getInAppBillingService(IBinder service) {
         return IInAppBillingService.Stub.asInterface(service);
     }
 
-    protected void setSignatureValidator(SignatureValidator validator) {
+    /* package */ void setSignatureValidator(SignatureValidator validator) {
         if (validator == null) throw new IllegalArgumentException("need non-null validator");
         mSignatureValidator = validator;
     }

@@ -3,8 +3,11 @@ package com.github.jberkel.payme.model;
 import java.util.Locale;
 
 public enum ItemType {
+    /** normal in app purchase */
     INAPP,
+    /** subscription */
     SUBS,
+    /** unknown type */
     UNKNOWN;
 
     public String toString() {
