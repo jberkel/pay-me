@@ -22,7 +22,7 @@ Add a maven dependency in your main project:
 
 ```xml
 <dependency>
-    <groupId>com.github.jberkel.payme</groupId>
+    <groupId>com.github.jberkel.pay.me</groupId>
     <artifactId>library</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <type>apklib</type>
@@ -67,5 +67,5 @@ This application is released under the terms of the [Apache License, Version 2.0
 [IABv3]: http://developer.android.com/google/play/billing/api.html
 [marketbilling]: https://code.google.com/p/marketbilling/
 [apklib]: https://code.google.com/p/maven-android-plugin/wiki/ApkLib
-[IabHelper]: https://github.com/jberkel/pay-me/blob/master/library/src/main/java/com/github/jberkel/payme/IabHelper.java
+[IabHelper]: https://github.com/jberkel/pay-me/blob/master/library/src/main/java/com/github/jberkel/pay/me/IabHelper.java
 
