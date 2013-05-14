@@ -32,7 +32,7 @@ import com.github.jberkel.payme.listener.QueryInventoryFinishedListener;
 import com.github.jberkel.payme.model.Inventory;
 import com.github.jberkel.payme.model.ItemType;
 import com.github.jberkel.payme.model.Purchase;
-import com.github.jberkel.payme.security.SignatureValidator;
+import com.github.jberkel.payme.validator.SignatureValidator;
 
 
 /**

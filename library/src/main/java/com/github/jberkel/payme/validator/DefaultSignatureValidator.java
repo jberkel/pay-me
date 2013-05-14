@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.github.jberkel.payme.security;
+package com.github.jberkel.payme.validator;
 
 import android.text.TextUtils;
 import android.util.Base64;

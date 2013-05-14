@@ -1,4 +1,4 @@
-package com.github.jberkel.payme.security;
+package com.github.jberkel.payme.validator;
 
 import android.util.Base64;
 import org.junit.Before;
@@ -18,10 +18,10 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 public class DefaultSignatureValidatorTest {
-    SignatureValidator validator;
+    com.github.jberkel.payme.validator.SignatureValidator validator;
 
     @Before public void before() throws Exception {
-        validator = new DefaultSignatureValidator(ENCODED_KEY);
+        validator = new com.github.jberkel.payme.validator.DefaultSignatureValidator(ENCODED_KEY);
     }
 
     @Test public void shouldVerifyPurchaseNullInput() throws Exception {
@@ -38,12 +38,12 @@ public class DefaultSignatureValidatorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldVerifyPurchaseWithInvalidKeyAndSignatureShouldThrow() throws Exception {
-        new DefaultSignatureValidator("").validate("", "signature");
+        new com.github.jberkel.payme.validator.DefaultSignatureValidator("").validate("", "signature");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldVerifyPurchaseWithInvalidKeyShouldThrow() throws Exception {
-        new DefaultSignatureValidator("INVALIDKEY").validate("", "");
+        new com.github.jberkel.payme.validator.DefaultSignatureValidator("INVALIDKEY").validate("", "");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class DefaultSignatureValidatorTest {
 
         String signature = Base64.encodeToString(sig.sign(), Base64.DEFAULT);
 
-        SignatureValidator validator = new DefaultSignatureValidator(encodePublicBase64);
+        SignatureValidator validator = new com.github.jberkel.payme.validator.DefaultSignatureValidator(encodePublicBase64);
         assertThat(validator.validate(data, signature)).isTrue();
         assertThat(validator.validate(data+"extraData", signature)).isFalse();
     }

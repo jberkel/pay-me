@@ -18,7 +18,7 @@ import com.github.jberkel.payme.listener.OnIabSetupFinishedListener;
 import com.github.jberkel.payme.listener.QueryInventoryFinishedListener;
 import com.github.jberkel.payme.model.Inventory;
 import com.github.jberkel.payme.model.Purchase;
-import com.github.jberkel.payme.security.SignatureValidator;
+import com.github.jberkel.payme.validator.SignatureValidator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package com.github.jberkel.payme.security;
+package com.github.jberkel.payme.validator;
 
 /**
  * Validates signatures returned by the billing services.
