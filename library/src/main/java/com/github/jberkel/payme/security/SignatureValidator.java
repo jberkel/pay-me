@@ -1,5 +1,8 @@
 package com.github.jberkel.payme.security;
 
+/**
+ * Validates signatures returned by the billing services.
+ */
 public interface SignatureValidator {
     /**
      * Validates that the specified signature matches the computed signature on
