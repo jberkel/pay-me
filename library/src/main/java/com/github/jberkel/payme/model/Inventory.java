@@ -15,6 +15,8 @@
 
 package com.github.jberkel.payme.model;
 
+import com.github.jberkel.payme.IabHelper;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,7 +25,7 @@ import java.util.Map;
 
 /**
  * Represents a block of information about in-app items.
- * An Inventory is returned by such methods as {@link com.github.jberkel.payme.IabHelper#queryInventory}.
+ * An Inventory is returned by such methods as {@link IabHelper#queryInventory}.
  */
 public class Inventory {
     private final Map<String,SkuDetails> mSkuMap = new HashMap<String,SkuDetails>();

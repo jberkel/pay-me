@@ -626,12 +626,12 @@ public class IabHelper {
                 }
             }
         }
-
         if (skuList.isEmpty()) {
             logDebug("querySkuDetails: nothing to do because there are no SKUs.");
             return OK.code;
         }
 
+        // TODO: check for 20 SKU limit + add batching ?
         Bundle querySkus = new Bundle();
         querySkus.putStringArrayList(GET_SKU_DETAILS_ITEM_LIST, skuList);
         Bundle skuDetails = mService.getSkuDetails(API_VERSION, mContext.getPackageName(), itemType.toString(), querySkus);

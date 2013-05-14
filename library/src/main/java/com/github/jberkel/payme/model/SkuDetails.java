@@ -21,6 +21,9 @@ import org.json.JSONObject;
 
 /**
  * Represents an in-app product's listing details.
+ * <p/>
+ * See also
+ * {@link com.android.vending.billing.IInAppBillingService#getSkuDetails(int, String, String, android.os.Bundle)}
  */
 public class SkuDetails {
     private final String mSku;
@@ -35,17 +38,15 @@ public class SkuDetails {
     public SkuDetails(String jsonSkuDetails) throws JSONException {
         mJson = jsonSkuDetails;
         JSONObject json = new JSONObject(mJson);
-        mSku = json.optString("productId");
-        mType = json.optString("type");
-        mPrice = json.optString("price");
-        mTitle = json.optString("title");
-        mDescription = json.optString("description");
-
-        mItemType = ItemType.fromString(mType);
-
+        mSku = json.optString(PRODUCT_ID);
         if (TextUtils.isEmpty(mSku)) {
             throw new JSONException("SKU cannot be empty");
         }
+        mType = json.optString(TYPE);
+        mPrice = json.optString(PRICE);
+        mTitle = json.optString(TITLE);
+        mDescription = json.optString(DESCRIPTION);
+        mItemType = ItemType.fromString(mType);
     }
 
     // package constructor for TestSkus
@@ -124,4 +125,11 @@ public class SkuDetails {
     public boolean isTestSku() {
         return mSku.startsWith(TestSkus.TEST_PREFIX);
     }
+
+    // fields used in service JSON response
+    private static final String PRODUCT_ID = "productId";
+    private static final String TYPE = "type";
+    private static final String PRICE = "price";
+    private static final String TITLE = "title";
+    private static final String DESCRIPTION = "description";
 }

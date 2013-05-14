@@ -21,6 +21,9 @@ import org.json.JSONObject;
 
 /**
  * Represents an in-app billing purchase.
+ * <p/>
+ * See also
+ * {@link com.android.vending.billing.IInAppBillingService#getPurchases(int, String, String, String)}
  */
 public class Purchase {
 
@@ -49,13 +52,13 @@ public class Purchase {
         mItemType = itemType;
         final JSONObject json = new JSONObject(jsonPurchaseInfo);
 
-        mOrderId = json.optString("orderId");
-        mPackageName = json.optString("packageName");
-        mSku = json.optString("productId");
-        mPurchaseTime = json.optLong("purchaseTime");
-        mPurchaseState = json.optInt("purchaseState");
-        mDeveloperPayload = json.optString("developerPayload");
-        mToken = json.optString("token", json.optString("purchaseToken"));
+        mOrderId = json.optString(ORDER_ID);
+        mPackageName = json.optString(PACKAGE_NAME);
+        mSku = json.optString(PRODUCT_ID);
+        mPurchaseTime = json.optLong(PURCHASE_TIME);
+        mPurchaseState = json.optInt(PURCHASE_STATE);
+        mDeveloperPayload = json.optString(DEVELOPER_PAYLOAD);
+        mToken = json.optString(TOKEN, json.optString(PURCHASE_TOKEN));
 
         mOriginalJson = jsonPurchaseInfo;
         mSignature = signature;
@@ -167,4 +170,14 @@ public class Purchase {
             return UNKNOWN;
         }
     }
+
+    // fields used in service JSON response
+    private static final String PACKAGE_NAME = "packageName";
+    private static final String PRODUCT_ID = "productId";
+    private static final String PURCHASE_TIME = "purchaseTime";
+    private static final String PURCHASE_STATE = "purchaseState";
+    private static final String DEVELOPER_PAYLOAD = "developerPayload";
+    private static final String PURCHASE_TOKEN = "purchaseToken";
+    private static final String TOKEN = "token";
+    private static final String ORDER_ID = "orderId";
 }
