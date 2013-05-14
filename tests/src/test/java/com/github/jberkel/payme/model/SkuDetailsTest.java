@@ -51,4 +51,12 @@ public class SkuDetailsTest {
     public void shouldNotAcceptEmptySKUForArgumentConstructor() throws Exception {
         new SkuDetails(null, "", "type", "1.99", "ACME", "A great ACME flamethrower");
     }
+
+    @Test public void shouldCheckIfTestSku() throws Exception {
+        SkuDetails sku = new SkuDetails(ItemType.INAPP, "123", "type", "1.99", "ACME", "A great ACME flamethrower");
+        assertThat(sku.isTestSku()).isFalse();
+
+        SkuDetails test = new SkuDetails(ItemType.INAPP, "android.test.foo", "type", "1.99", "ACME", "A great ACME flamethrower");
+        assertThat(test.isTestSku()).isTrue();
+    }
 }

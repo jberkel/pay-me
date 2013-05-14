@@ -23,6 +23,7 @@ import org.json.JSONObject;
  * Represents an in-app product's listing details.
  */
 public class SkuDetails {
+
     private final ItemType mItemType;
     private final String mSku;
     private final String mType;
@@ -52,7 +53,7 @@ public class SkuDetails {
         }
     }
 
-    public SkuDetails(ItemType itemType, String sku, String type, String price, String title, String description) {
+    SkuDetails(ItemType itemType, String sku, String type, String price, String title, String description) {
         if (itemType == null) throw new IllegalArgumentException("itemType cannot be null");
         if (TextUtils.isEmpty(sku)) {
             throw new IllegalArgumentException("SKU cannot be empty");
@@ -65,10 +66,10 @@ public class SkuDetails {
         mDescription = description;
     }
 
-    public String getSku() { return mSku; }
-    public String getType() { return mType; }
-    public String getPrice() { return mPrice; }
-    public String getTitle() { return mTitle; }
+    public String getSku()         { return mSku; }
+    public String getType()        { return mType; }
+    public String getPrice()       { return mPrice; }
+    public String getTitle()       { return mTitle; }
     public String getDescription() { return mDescription; }
 
     @Override
@@ -82,5 +83,9 @@ public class SkuDetails {
                 ", mDescription='" + mDescription + '\'' +
                 ", mJson='" + mJson + '\'' +
                 '}';
+    }
+
+    public boolean isTestSku() {
+        return mSku.startsWith(TestSkus.TEST_PREFIX);
     }
 }
