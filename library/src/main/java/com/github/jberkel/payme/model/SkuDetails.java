@@ -23,54 +23,90 @@ import org.json.JSONObject;
  * Represents an in-app product's listing details.
  */
 public class SkuDetails {
-
-    private final ItemType mItemType;
     private final String mSku;
     private final String mType;
     private final String mPrice;
     private final String mTitle;
     private final String mDescription;
+
     private String mJson;
+    private final ItemType mItemType;
 
     public SkuDetails(String jsonSkuDetails) throws JSONException {
-        this(ItemType.INAPP, jsonSkuDetails);
-    }
-
-    public SkuDetails(ItemType itemType, String jsonSkuDetails) throws JSONException {
-        if (itemType == null) throw new IllegalArgumentException("itemType cannot be null");
-
-        mItemType = itemType;
         mJson = jsonSkuDetails;
-        JSONObject o = new JSONObject(mJson);
-        mSku = o.optString("productId");
-        mType = o.optString("type");
-        mPrice = o.optString("price");
-        mTitle = o.optString("title");
-        mDescription = o.optString("description");
+        JSONObject json = new JSONObject(mJson);
+        mSku = json.optString("productId");
+        mType = json.optString("type");
+        mPrice = json.optString("price");
+        mTitle = json.optString("title");
+        mDescription = json.optString("description");
+
+        mItemType = ItemType.fromString(mType);
 
         if (TextUtils.isEmpty(mSku)) {
             throw new JSONException("SKU cannot be empty");
         }
     }
 
-    SkuDetails(ItemType itemType, String sku, String type, String price, String title, String description) {
+    // package constructor for TestSkus
+    SkuDetails(ItemType itemType,
+               String sku,
+               String price,
+               String title,
+               String description) {
         if (itemType == null) throw new IllegalArgumentException("itemType cannot be null");
         if (TextUtils.isEmpty(sku)) {
             throw new IllegalArgumentException("SKU cannot be empty");
         }
         mItemType = itemType;
+        mType = itemType.toString();
         mSku = sku;
-        mType = type;
         mPrice = price;
         mTitle = title;
         mDescription = description;
     }
 
-    public String getSku()         { return mSku; }
-    public String getType()        { return mType; }
-    public String getPrice()       { return mPrice; }
-    public String getTitle()       { return mTitle; }
-    public String getDescription() { return mDescription; }
+    /**
+     * @return The product ID for the product.
+     */
+    public String getSku() {
+        return mSku;
+    }
+
+    /**
+     * @return Formatted price of the item, including its currency sign. The price does not include tax.
+     */
+    public String getPrice() {
+        return mPrice;
+    }
+
+    /**
+     * @return Title of the product.
+     */
+    public String getTitle() {
+        return mTitle;
+    }
+
+    /**
+     * @return Description of the product.
+     */
+    public String getDescription() {
+        return mDescription;
+    }
+
+    /**
+     * @return Value must be “inapp” for an in-app product or "subs" for subscriptions.
+     */
+    public String getRawType() {
+        return mType;
+    }
+
+    /**
+     * @return parsed representation of {@link #getRawType()}.
+     */
+    public ItemType getType() {
+        return mItemType;
+    }
 
     @Override
     public String toString() {

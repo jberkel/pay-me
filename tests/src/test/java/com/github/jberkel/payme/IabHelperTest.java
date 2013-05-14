@@ -185,21 +185,30 @@ public class IabHelperTest {
         helper.startSetup(setupListener);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void shouldRaiseExceptionIfPurchaseFlowLaunchedWithoutSetup() throws Exception {
-        Activity activity = new Activity();
-        helper.launchPurchaseFlow(activity, "sku", INAPP, 0, purchaseFinishedListener, "");
+    // launchPurchaseFlow
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldRaiseExceptionIfPurchaseFlowLaunchedWithEmptySky() throws Exception {
+        shouldStartSetup_SuccessCase();
+        helper.launchPurchaseFlow(mock(Activity.class), "", INAPP, 0, purchaseFinishedListener, null);
     }
 
-    // launchPurchaseFlow
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldRaiseExceptionIfPurchaseFlowLaunchedWithNullType() throws Exception {
+        shouldStartSetup_SuccessCase();
+        helper.launchPurchaseFlow(mock(Activity.class), "sku", null, 0, purchaseFinishedListener, null);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldRaiseExceptionIfPurchaseFlowLaunchedWithoutSetup() throws Exception {
+        helper.launchPurchaseFlow(mock(Activity.class), "sku", INAPP, 0, purchaseFinishedListener, "");
+    }
 
     @Test public void shouldFailPurchaseWhenEmptyResponseIsReturned() throws Exception {
         shouldStartSetup_SuccessCase();
-        Activity activity = new Activity();
         Bundle empty = new Bundle();
         when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", "inapp", "")).thenReturn(empty);
 
-        helper.launchPurchaseFlow(activity, "sku", INAPP, 0, purchaseFinishedListener, "");
+        helper.launchPurchaseFlow(mock(Activity.class), "sku", INAPP, 0, purchaseFinishedListener, "");
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
                 new IabResult(IABHELPER_SEND_INTENT_FAILED),
@@ -212,7 +221,7 @@ public class IabHelperTest {
         errorResponse.putInt(RESPONSE_CODE, ERROR.code);
         when(service.getBuyIntent(API_VERSION, Robolectric.application.getPackageName(), "sku", "inapp", "")).thenReturn(errorResponse);
 
-        helper.launchPurchaseFlow(null, "sku", INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
+        helper.launchPurchaseFlow(mock(Activity.class), "sku", INAPP, TEST_REQUEST_CODE, purchaseFinishedListener, "");
 
         verify(purchaseFinishedListener).onIabPurchaseFinished(
                 new IabResult(ERROR, "Unable to buy item"),

@@ -19,17 +19,19 @@ public class SkuDetailsTest {
         assertThat(details.getDescription()).isEqualTo("A great ACME flamethrower");
         assertThat(details.getTitle()).isEqualTo("ACME");
         assertThat(details.getPrice()).isEqualTo("1.99");
-        assertThat(details.getType()).isEqualTo("type");
+        assertThat(details.getRawType()).isEqualTo("inapp");
+        assertThat(details.getType()).isEqualTo(ItemType.INAPP);
     }
 
     @Test
     public void shouldConstructWithoutJson() throws Exception {
-        SkuDetails details = new SkuDetails(ItemType.INAPP, "123", "type", "1.99", "ACME", "A great ACME flamethrower");
+        SkuDetails details = new SkuDetails(ItemType.INAPP, "123", "1.99", "ACME", "A great ACME flamethrower");
         assertThat(details.getSku()).isEqualTo("123");
         assertThat(details.getDescription()).isEqualTo("A great ACME flamethrower");
         assertThat(details.getTitle()).isEqualTo("ACME");
         assertThat(details.getPrice()).isEqualTo("1.99");
-        assertThat(details.getType()).isEqualTo("type");
+        assertThat(details.getRawType()).isEqualTo("inapp");
+        assertThat(details.getType()).isEqualTo(ItemType.INAPP);
     }
 
     @Test(expected = JSONException.class)
@@ -37,26 +39,26 @@ public class SkuDetailsTest {
         new SkuDetails("");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = JSONException.class)
     public void shouldNotAcceptNullItemType() throws Exception {
-        new SkuDetails(null, "{}");
+        new SkuDetails("{}");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAcceptNullItemTypeForArgumentConstructor() throws Exception {
-        new SkuDetails(null, "123", "type", "1.99", "ACME", "A great ACME flamethrower");
+        new SkuDetails(null, "123", "1.99", "ACME", "A great ACME flamethrower");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAcceptEmptySKUForArgumentConstructor() throws Exception {
-        new SkuDetails(null, "", "type", "1.99", "ACME", "A great ACME flamethrower");
+        new SkuDetails(null, "", "1.99", "ACME", "A great ACME flamethrower");
     }
 
     @Test public void shouldCheckIfTestSku() throws Exception {
-        SkuDetails sku = new SkuDetails(ItemType.INAPP, "123", "type", "1.99", "ACME", "A great ACME flamethrower");
+        SkuDetails sku = new SkuDetails(ItemType.INAPP, "123", "1.99", "ACME", "A great ACME flamethrower");
         assertThat(sku.isTestSku()).isFalse();
 
-        SkuDetails test = new SkuDetails(ItemType.INAPP, "android.test.foo", "type", "1.99", "ACME", "A great ACME flamethrower");
+        SkuDetails test = new SkuDetails(ItemType.INAPP, "android.test.foo", "1.99", "ACME", "A great ACME flamethrower");
         assertThat(test.isTestSku()).isTrue();
     }
 }

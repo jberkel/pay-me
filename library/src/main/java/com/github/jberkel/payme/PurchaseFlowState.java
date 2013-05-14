@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import static com.github.jberkel.payme.model.ItemType.UNKNOWN;
 
 class PurchaseFlowState implements OnIabPurchaseFinishedListener {
-    static final PurchaseFlowState EMPTY = new PurchaseFlowState(-1, UNKNOWN, null);
+    static final PurchaseFlowState NONE = new PurchaseFlowState(-1, UNKNOWN, null);
 
     /** The request code used to launch purchase flow */
     final int requestCode;

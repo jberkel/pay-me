@@ -16,6 +16,7 @@ import static com.github.jberkel.payme.model.ItemType.*;
  */
 public final class TestSkus {
     static final String TEST_PREFIX = "android.test.";
+    static final String TEST_PRICE = "0.00 USD";
     /**
      * When you make an In-app Billing request with this product ID, Google Play responds as though
      * you successfully purchased an item. The response includes a JSON string, which contains fake
@@ -24,7 +25,7 @@ public final class TestSkus {
      * using these responses.
      */
     public static final SkuDetails PURCHASED =
-        new SkuDetails(INAPP, TEST_PREFIX+"purchased", null, null, "Test (purchased)", null);
+        new SkuDetails(INAPP, TEST_PREFIX+"purchased", TEST_PRICE, "Test (purchased)", "Purchased");
 
 
     /**
@@ -33,7 +34,7 @@ public final class TestSkus {
      * such as an invalid credit card, or when you cancel a user's order before it is charged.
      */
     public static final SkuDetails CANCELED =
-        new SkuDetails(INAPP, TEST_PREFIX+"canceled", null, null, "Test (canceled)", null);
+        new SkuDetails(INAPP, TEST_PREFIX+"canceled", TEST_PRICE, "Test (canceled)", "Canceled");
 
     /**
      * When you make an In-app Billing request with this product ID, Google Play responds as though
@@ -49,12 +50,12 @@ public final class TestSkus {
      *  </a>.
      */
     public static final SkuDetails REFUNDED =
-        new SkuDetails(INAPP, TEST_PREFIX+"refunded", null, null, "Test (refunded)", null);
+        new SkuDetails(INAPP, TEST_PREFIX+"refunded", TEST_PRICE, "Test (refunded)", "Refunded");
 
     /**
      * When you make an In-app Billing request with this product ID, Google Play responds as though
      * the item being purchased was not listed in your application's product list.
      */
     public static final SkuDetails UNAVAILABLE =
-        new SkuDetails(INAPP, TEST_PREFIX+"item_unavailable", null, null, "Test (unvailable)", null);
+        new SkuDetails(INAPP, TEST_PREFIX+"item_unavailable", TEST_PRICE, "Test (unavailable)", "Unavailable");
 }
