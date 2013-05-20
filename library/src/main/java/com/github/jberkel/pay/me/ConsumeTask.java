@@ -4,8 +4,6 @@ import android.os.AsyncTask;
 import com.github.jberkel.pay.me.listener.OnConsumeFinishedListener;
 import com.github.jberkel.pay.me.listener.OnConsumeMultiFinishedListener;
 import com.github.jberkel.pay.me.model.Purchase;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,8 +17,8 @@ class ConsumeTask extends AsyncTask<Purchase, Void, List<IabResult>> {
     private List<Purchase> mPurchases;
 
     public ConsumeTask(IabHelper iabHelper,
-                       @Nullable OnConsumeFinishedListener singleListener,
-                       @Nullable OnConsumeMultiFinishedListener multiListener) {
+                       OnConsumeFinishedListener singleListener,
+                       OnConsumeMultiFinishedListener multiListener) {
         mIabHelper = iabHelper;
         mSingleListener = singleListener;
         mMultiListener = multiListener;

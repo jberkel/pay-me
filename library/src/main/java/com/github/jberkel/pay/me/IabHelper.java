@@ -39,8 +39,6 @@ import com.github.jberkel.pay.me.model.Purchase;
 import com.github.jberkel.pay.me.model.SkuDetails;
 import com.github.jberkel.pay.me.validator.DefaultSignatureValidator;
 import com.github.jberkel.pay.me.validator.SignatureValidator;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 
 import java.util.ArrayList;
@@ -93,8 +91,8 @@ public class IabHelper {
     private IInAppBillingService mService;
     private BillingServiceConnection mServiceConn;
 
-    @NotNull private PurchaseFlowState mPurchaseFlowState = PurchaseFlowState.NONE;
-    @NotNull private SignatureValidator mSignatureValidator;
+    private PurchaseFlowState mPurchaseFlowState = PurchaseFlowState.NONE;
+    private SignatureValidator mSignatureValidator;
 
     private boolean mSetupDone, mDisposed;
     private boolean mSubscriptionsSupported, mInAppSupported;
@@ -127,7 +125,7 @@ public class IabHelper {
      * @param ctx       Your application or Activity context. Needed to bind to the in-app billing service.
      * @param validator the validator to be used for verifying the signature.
      */
-    public IabHelper(@NotNull Context ctx, @NotNull SignatureValidator validator) {
+    public IabHelper(Context ctx, SignatureValidator validator) {
         if (ctx == null) throw new IllegalArgumentException("need non-null context");
         if (validator == null) throw new IllegalArgumentException("need non-null validator");
         mContext = ctx.getApplicationContext();
@@ -142,7 +140,7 @@ public class IabHelper {
      *
      * @param listener The listener to notify when the setup process is complete.
      */
-    public void startSetup(final @Nullable OnIabSetupFinishedListener listener) {
+    public void startSetup(final OnIabSetupFinishedListener listener) {
         checkNotDisposed();
         if (mSetupDone) throw new IllegalStateException("IAB helper is already set up.");
         logDebug("Starting in-app billing setup.");
@@ -204,8 +202,8 @@ public class IabHelper {
                                    final String sku,
                                    final ItemType itemType,
                                    final int requestCode,
-                                   final @Nullable OnIabPurchaseFinishedListener listener,
-                                   final @Nullable String developerPayload) {
+                                   final OnIabPurchaseFinishedListener listener,
+                                   final String developerPayload) {
         if (TextUtils.isEmpty(sku)) throw new IllegalArgumentException("Empty sku");
         if (itemType == null) throw new IllegalArgumentException("Empty itemType");
 
@@ -274,7 +272,7 @@ public class IabHelper {
      *         false if the result was not related to a purchase, in which case you should
      *         handle it normally.
      */
-    public boolean handleActivityResult(int requestCode, int intentResultCode, @Nullable Intent intent) {
+    public boolean handleActivityResult(int requestCode, int intentResultCode, Intent intent) {
         if (mPurchaseFlowState == PurchaseFlowState.NONE) return false; // no prior launchPurchaseFlow
         else if (requestCode != mPurchaseFlowState.requestCode) return false;
 
@@ -333,8 +331,8 @@ public class IabHelper {
      * @throws IabException if a problem occurs while refreshing the inventory.
      */
     public Inventory queryInventory(boolean querySkuDetails,
-                                    @Nullable List<String> moreItemSkus,
-                                    @Nullable List<String> moreSubsSkus) throws IabException {
+                                    List<String> moreItemSkus,
+                                    List<String> moreSubsSkus) throws IabException {
         checkNotDisposed();
         checkSetupDone("queryInventory");
         try {
@@ -366,7 +364,7 @@ public class IabHelper {
     public void queryInventoryAsync(final boolean querySkuDetails,
                                     final List<String> moreSkus,
                                     final List<String> moreSubSkus,
-                                    final @Nullable QueryInventoryFinishedListener listener) {
+                                    final QueryInventoryFinishedListener listener) {
         checkNotDisposed();
         checkSetupDone("queryInventory");
         new QueryInventoryTask(this, listener).execute(new QueryInventoryTask.Args(querySkuDetails, moreSkus, moreSubSkus));
@@ -377,7 +375,7 @@ public class IabHelper {
      * See {@link #queryInventoryAsync(boolean, java.util.List, java.util.List, QueryInventoryFinishedListener)}
      * @param listener The listener to notify when the refresh operation completes.
      */
-    public void queryInventoryAsync(final @Nullable QueryInventoryFinishedListener listener) {
+    public void queryInventoryAsync(final QueryInventoryFinishedListener listener) {
         queryInventoryAsync(true, null, null, listener);
     }
 
@@ -614,7 +612,7 @@ public class IabHelper {
         return verificationFailed ? IABHELPER_VERIFICATION_FAILED.code : OK.code;
     }
 
-    private int querySkuDetails(ItemType itemType, Inventory inv, @Nullable List<String> moreSkus)
+    private int querySkuDetails(ItemType itemType, Inventory inv, List<String> moreSkus)
             throws RemoteException, JSONException {
         logDebug("Querying SKU details.");
         ArrayList<String> skuList = new ArrayList<String>();
@@ -655,8 +653,8 @@ public class IabHelper {
     }
 
     private ConsumeTask consumeAsyncInternal(final List<Purchase> purchases,
-                                             final @Nullable OnConsumeFinishedListener singleListener,
-                                             final @Nullable OnConsumeMultiFinishedListener multiListener) {
+                                             final OnConsumeFinishedListener singleListener,
+                                             final OnConsumeMultiFinishedListener multiListener) {
         return (ConsumeTask) new ConsumeTask(this, singleListener, multiListener).execute(purchases.toArray(new Purchase[purchases.size()]));
     }
 

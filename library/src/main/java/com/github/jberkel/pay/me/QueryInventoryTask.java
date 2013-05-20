@@ -3,7 +3,6 @@ package com.github.jberkel.pay.me;
 import android.os.AsyncTask;
 import com.github.jberkel.pay.me.listener.QueryInventoryFinishedListener;
 import com.github.jberkel.pay.me.model.Inventory;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ class QueryInventoryTask extends AsyncTask<QueryInventoryTask.Args, Void, Invent
     private final QueryInventoryFinishedListener mListener;
     private IabResult mResult = new IabResult(OK);
 
-    public QueryInventoryTask(IabHelper iabHelper, @Nullable QueryInventoryFinishedListener listener) {
+    public QueryInventoryTask(IabHelper iabHelper, QueryInventoryFinishedListener listener) {
         mIabHelper = iabHelper;
         mListener = listener;
     }

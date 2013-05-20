@@ -3,7 +3,6 @@ package com.github.jberkel.pay.me;
 import com.github.jberkel.pay.me.listener.OnIabPurchaseFinishedListener;
 import com.github.jberkel.pay.me.model.ItemType;
 import com.github.jberkel.pay.me.model.Purchase;
-import org.jetbrains.annotations.Nullable;
 
 import static com.github.jberkel.pay.me.model.ItemType.UNKNOWN;
 
@@ -15,9 +14,9 @@ class PurchaseFlowState implements OnIabPurchaseFinishedListener {
     /** The item type of the current purchase flow */
     final ItemType itemType;
     /**  The listener registered on launchPurchaseFlow, which we have to call back when the purchase finishes */
-    @Nullable final OnIabPurchaseFinishedListener listener;
+    final OnIabPurchaseFinishedListener listener;
 
-    PurchaseFlowState(int requestCode, ItemType itemType, @Nullable OnIabPurchaseFinishedListener listener) {
+    PurchaseFlowState(int requestCode, ItemType itemType, OnIabPurchaseFinishedListener listener) {
         if (itemType == null) throw new IllegalArgumentException("itemType cannot be null");
         this.requestCode = requestCode;
         this.itemType = itemType;
