@@ -2,6 +2,7 @@ package com.github.jberkel.pay.me;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -21,5 +22,10 @@ public class IabResultTest {
 
         assertThat(new IabResult(1, "FAIL").isSuccess()).isFalse();
         assertThat(new IabResult(1, "FAIL").isFailure()).isTrue();
+    }
+
+    @Test public void shouldGetLocalizedMessage() throws Exception {
+        assertThat(new IabResult(Response.BILLING_UNAVAILABLE, "FAIL").getLocalizedMessage(
+                Robolectric.application.getResources())).isEqualTo("Billing Unavailable");
     }
 }

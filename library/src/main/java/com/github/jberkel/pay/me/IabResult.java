@@ -15,6 +15,8 @@
 
 package com.github.jberkel.pay.me;
 
+import android.content.res.Resources;
+
 /**
  * Represents the result of an in-app billing operation.
  * A result is composed of a response code (an integer) and possibly a
@@ -48,6 +50,14 @@ public class IabResult {
         return mResponse;
     }
 
+    /**
+     * @param resources android resources
+     * @return a localized description of the result
+     */
+    public String getLocalizedMessage(Resources resources) {
+        return resources.getString(mResponse.stringId);
+    }
+
     public String getMessage() {
         return mMessage;
     }
@@ -77,5 +87,6 @@ public class IabResult {
     public int hashCode() {
         return mResponse.hashCode();
     }
+
 }
 

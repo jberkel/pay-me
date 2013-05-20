@@ -552,7 +552,7 @@ public class IabHelper {
         if (queryDetails) {
             result = querySkuDetails(itemType, inventory, extraSkus);
             if (result != OK.code) {
-                throw new IabException(result, "Error qurying purchase details for "+itemType);
+                throw new IabException(result, "Error querying purchase details for "+itemType);
             }
         }
     }
