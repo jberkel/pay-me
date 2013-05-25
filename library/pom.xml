@@ -55,21 +55,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>com.electriccloud</groupId>
-                <artifactId>javac2-maven-plugin</artifactId>
-                <version>1.0.1</version>
-                <executions>
-                    <execution>
-                        <id>@NotNull Instrumentation</id>
-                        <goals>
-                            <goal>instrument</goal>
-                        </goals>
-                        <phase>process-classes</phase>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -86,13 +71,4 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <pluginRepositories>
-        <!-- needed for com.electriccloud.javac2-maven-plugin -->
-        <pluginRepository>
-            <id>zegoggles-releases</id>
-            <name>zeoggles releases</name>
-            <url>http://zegoggl.es:8081/nexus/content/repositories/releases/</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>
