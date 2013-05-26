@@ -45,9 +45,15 @@
     </modules>
 
     <distributionManagement>
+      <repository>
+        <id>repo</id>
+        <name>zegoggles Snapshots</name>
+        <url>http://zegoggl.es:8081/nexus/content/repositories/releases/</url>
+      </repository>
+
       <snapshotRepository>
         <uniqueVersion>true</uniqueVersion>
-        <id>zegoggles</id>
+        <id>snapshot-repo</id>
         <name>zegoggles Snapshots</name>
         <url>http://zegoggl.es:8081/nexus/content/repositories/snapshots/</url>
       </snapshotRepository>
