@@ -476,7 +476,7 @@ public class IabHelper {
 
     /* package */ int getResponseCodeFromBundle(Bundle bundle) {
         Object o;
-        if (bundle == null || ((o = bundle.get(RESPONSE_CODE)) == null)) {
+        if (bundle == null || (o = bundle.get(RESPONSE_CODE)) == null) {
             logDebug("Bundle with null response code, assuming OK (known issue)");
             return OK.code;
         } else if (o instanceof Integer) return (Integer) o;
