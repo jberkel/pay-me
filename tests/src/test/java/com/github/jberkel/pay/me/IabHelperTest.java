@@ -43,6 +43,7 @@ import static org.fest.assertions.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
@@ -165,6 +166,15 @@ public class IabHelperTest {
         assertThat(helper.subscriptionsSupported()).isFalse();
     }
 
+    @Test public void shouldStartSetup_ServiceExistsButDisposed() throws Exception {
+        registerServiceWithPackageManager();
+        when(service.isBillingSupported(eq(API_VERSION), anyString(), anyString())).thenReturn(OK.code);
+        helper.startSetup(setupListener);
+        verify(setupListener).onIabSetupFinished(new IabResult(OK));
+        helper.dispose();
+        assertThat(helper.subscriptionsSupported()).isFalse();
+    }
+
     @Test public void shouldDisposeAfterStartupAndUnbindServiceConnection() throws Exception {
         shouldStartSetup_SuccessCase();
         assertThat(helper.isDisposed()).isFalse();
@@ -200,6 +210,14 @@ public class IabHelperTest {
     @Test(expected = IllegalStateException.class)
     public void shouldRaiseExceptionIfPurchaseFlowLaunchedWithoutSetup() throws Exception {
         helper.launchPurchaseFlow(mock(Activity.class), "sku", INAPP, 0, purchaseFinishedListener, "");
+    }
+
+    @Test
+    public void shouldCallListenerWithDisposedReponseIfHelperIsDisposed() throws Exception {
+        shouldStartSetup_SuccessCase();
+        helper.dispose();
+        helper.launchPurchaseFlow(mock(Activity.class), "sku", INAPP, 0, purchaseFinishedListener, "");
+        verify(purchaseFinishedListener).onIabPurchaseFinished(new IabResult(Response.IABHELPER_DISPOSED), null);
     }
 
     @Test public void shouldFailPurchaseWhenEmptyResponseIsReturned() throws Exception {
@@ -394,6 +412,16 @@ public class IabHelperTest {
         verify(purchaseFinishedListener).onIabPurchaseFinished(new IabResult(IABHELPER_UNKNOWN_PURCHASE_RESPONSE), null);
     }
 
+    @Test public void shouldLaunchPurchaseAndStartIntentAndThenHandleActivityResultWhenDisposed() throws Exception {
+        shouldStartIntentAfterSuccessfulLaunchPurchase();
+        Intent data = new Intent();
+        data.putExtra(RESPONSE_CODE, OK.code);
+        data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, "{ \"productId\": \"foo\" }");
+        data.putExtra(RESPONSE_INAPP_SIGNATURE, "");
+        helper.dispose();
+        assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, Activity.RESULT_OK, data)).isFalse();
+    }
+
     @Test public void shouldHandleInvalidSignature() throws Exception {
         shouldStartIntentAfterSuccessfulLaunchPurchase();
         SignatureValidator failing = mock(SignatureValidator.class);
@@ -424,6 +452,13 @@ public class IabHelperTest {
         assertThat(inventory.getAllPurchases()).hasSize(1);
         assertThat(inventory.getAllOwnedSkus()).hasSize(1);
         assertThat(inventory.getSkuDetails()).isEmpty();
+    }
+
+    @Test(expected = IabException.class)
+    public void shouldQueryInventoryWhenDisposedThrowIabException() throws Exception {
+        shouldStartSetup_CheckForSubscriptions_Unavailable();
+        helper.dispose();
+        Inventory inventory = helper.queryInventory(false, null ,null);
     }
 
     @Test public void shouldQueryInventoryWithoutSubscriptionsButSkuDetails() throws Exception {
@@ -717,6 +752,16 @@ public class IabHelperTest {
         verify(listener).onQueryInventoryFinished(eq(new IabResult(OK)), any(Inventory.class));
     }
 
+    @Test public void queryInventoryAsyncWhenDisposed() throws Exception {
+        shouldStartSetup_CheckForSubscriptions_Unavailable();
+        QueryInventoryFinishedListener listener = mock(QueryInventoryFinishedListener.class);
+
+        helper.dispose();
+        helper.queryInventoryAsync(false, null, null, listener);
+
+        verify(listener).onQueryInventoryFinished(eq(new IabResult(IABHELPER_DISPOSED)), isNull(Inventory.class));
+    }
+
     // consume
     @Test(expected = IabException.class) public void shouldNotConsumeSubscription() throws Exception {
         shouldStartSetup_SuccessCase();
@@ -735,6 +780,14 @@ public class IabHelperTest {
 
     @Test(expected = IabException.class) public void shouldNotConsumeInAppItemWithoutToken() throws Exception {
         shouldStartSetup_SuccessCase();
+        Purchase purchase = mock(Purchase.class);
+        when(purchase.getItemType()).thenReturn(INAPP);
+        helper.consume(purchase);
+    }
+
+    @Test(expected = IabException.class) public void shouldNotConsumeWhenDisposed() throws Exception {
+        shouldStartSetup_SuccessCase();
+        helper.dispose();
         Purchase purchase = mock(Purchase.class);
         when(purchase.getItemType()).thenReturn(INAPP);
         helper.consume(purchase);

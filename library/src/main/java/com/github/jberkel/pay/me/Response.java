@@ -20,7 +20,8 @@ public enum Response {
     IABHELPER_MISSING_TOKEN              (-1007, R.string.pay_me_response_missing_token, "Missing token"),
     IABHELPER_UNKNOWN_ERROR              (-1008, R.string.pay_me_response_unknown_error, "Unknown error"),
     IABHELPER_SUBSCRIPTIONS_NOT_AVAILABLE(-1009, R.string.pay_me_response_subscriptions_not_available,  "Subscriptions not available"),
-    IABHELPER_INVALID_CONSUMPTION        (-1010, R.string.pay_me_response_invalid_consumption, "Invalid consumption attempt");
+    IABHELPER_INVALID_CONSUMPTION        (-1010, R.string.pay_me_response_invalid_consumption, "Invalid consumption attempt"),
+    IABHELPER_DISPOSED                   (-1011, R.string.pay_me_response_disposed, "The helper was already disposed of");
 
     /** the error code */
     public final int code;

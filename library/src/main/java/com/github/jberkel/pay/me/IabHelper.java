@@ -141,7 +141,8 @@ public class IabHelper {
      * @param listener The listener to notify when the setup process is complete.
      */
     public void startSetup(final OnIabSetupFinishedListener listener) {
-        checkNotDisposed();
+        checkNotDisposedAndThrow();
+
         if (mSetupDone) throw new IllegalStateException("IAB helper is already set up.");
         logDebug("Starting in-app billing setup.");
 
@@ -207,7 +208,13 @@ public class IabHelper {
         if (TextUtils.isEmpty(sku)) throw new IllegalArgumentException("Empty sku");
         if (itemType == null) throw new IllegalArgumentException("Empty itemType");
 
-        checkNotDisposed();
+        if (isDisposed()) {
+            if (listener != null) {
+                listener.onIabPurchaseFinished(new IabResult(Response.IABHELPER_DISPOSED), null);
+            }
+            return;
+        }
+
         checkSetupDone("launchPurchaseFlow");
         flagStartAsync("launchPurchaseFlow");
 
@@ -275,8 +282,6 @@ public class IabHelper {
     public boolean handleActivityResult(int requestCode, int intentResultCode, Intent intent) {
         if (mPurchaseFlowState == PurchaseFlowState.NONE) return false; // no prior launchPurchaseFlow
         else if (requestCode != mPurchaseFlowState.requestCode) return false;
-
-        checkNotDisposed();
         checkSetupDone("handleActivityResult");
 
         // end of async purchase operation that started on launchPurchaseFlow
@@ -365,7 +370,13 @@ public class IabHelper {
                                     final List<String> moreSkus,
                                     final List<String> moreSubSkus,
                                     final QueryInventoryFinishedListener listener) {
-        checkNotDisposed();
+        if (isDisposed()) {
+            if (listener != null) {
+                listener.onQueryInventoryFinished(new IabResult(Response.IABHELPER_DISPOSED), null);
+            }
+            return;
+        }
+
         checkSetupDone("queryInventory");
         new QueryInventoryTask(this, listener).execute(new QueryInventoryTask.Args(querySkuDetails, moreSkus, moreSubSkus));
     }
@@ -427,7 +438,10 @@ public class IabHelper {
      * @param listener The listener to notify when the consumption operation finishes.
      */
     public void consumeAsync(Purchase purchase, OnConsumeFinishedListener listener) {
-        checkNotDisposed();
+        if (isDisposed()) {
+            if (listener != null) listener.onConsumeFinished(null, new IabResult(IABHELPER_DISPOSED));
+            return;
+        }
         checkSetupDone("consume");
         consumeAsyncInternal(Arrays.asList(purchase), listener, null);
     }
@@ -439,7 +453,12 @@ public class IabHelper {
      * @param listener  The listener to notify when the consumption operation finishes.
      */
     public void consumeAsync(List<Purchase> purchases, OnConsumeMultiFinishedListener listener) {
-        checkNotDisposed();
+        if (isDisposed()) {
+            if (listener != null) {
+                listener.onConsumeMultiFinished(new ArrayList<Purchase>(), new ArrayList<IabResult>());
+            }
+            return;
+        }
         checkSetupDone("consume");
         consumeAsyncInternal(purchases, null, listener);
     }
@@ -448,21 +467,20 @@ public class IabHelper {
      * Returns whether subscriptions are supported.
      */
     public boolean subscriptionsSupported() {
-        checkNotDisposed();
-        return mSubscriptionsSupported;
+        return !isDisposed() && mSubscriptionsSupported;
     }
 
     /**
      * Enables or disable debug logging through LogCat.
      */
     public void enableDebugLogging(boolean enable, String tag) {
-        checkNotDisposed();
+        checkNotDisposedAndThrow();
         enableDebugLogging(enable);
         mDebugTag = tag;
     }
 
     public void enableDebugLogging(boolean enable) {
-        checkNotDisposed();
+        checkNotDisposedAndThrow();
         mDebugLog = enable;
     }
 
@@ -507,8 +525,16 @@ public class IabHelper {
         return mDisposed;
     }
 
-    private void checkNotDisposed() {
-        if (mDisposed) throw new IllegalStateException("IabHelper was disposed of, so it cannot be used.");
+    private void checkNotDisposed() throws IabException {
+        if (isDisposed()) {
+            throw new IabException(IABHELPER_DISPOSED, null);
+        }
+    }
+
+    private void checkNotDisposedAndThrow() throws IllegalStateException {
+        if (isDisposed()) {
+            throw new IllegalStateException("IabHelper was disposed of, so it cannot be used.");
+        }
     }
 
     private void handlePurchaseResult(String purchaseData,
@@ -700,7 +726,7 @@ public class IabHelper {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            if (mDisposed) return;
+            if (isDisposed()) return;
             logDebug("Billing service connected.");
             mService = getInAppBillingService(service);
 

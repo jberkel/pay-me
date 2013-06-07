@@ -19,4 +19,5 @@
     <string name="pay.me.response.unknown_error">Unknown error</string>
     <string name="pay.me.response.subscriptions_not_available">Subscriptions not available</string>
     <string name="pay.me.response.invalid_consumption">Invalid consumption attempt</string>
+    <string name="pay.me.response.disposed">The helper was already disposed of</string>
 </resources>
