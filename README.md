@@ -2,12 +2,14 @@
 
 [![Build Status](https://secure.travis-ci.org/jberkel/pay-me.png?branch=master)](http://travis-ci.org/jberkel/pay-me)
 
+> the place burned down? lightning struck? slow business?
+
 An Android library for handling In-App-Billing V3 ([IABv3][]), based on Google's [marketbilling][] sample code.
 The goal of this project is to build a reliable and tested library which can easily be included as an [apklib][]
 in your (Maven based) projects.
 
 Google's sample code has been refactored and made testable - at the moment there are over 100 unit tests covering
-most of the code base. However it has not been used in a published application yet.
+most of the code base. It is currently used in the 1.5.x version of [SMS Backup+][].
 
 ## usage
 
@@ -24,7 +26,7 @@ Add a maven dependency in your main project:
 <dependency>
     <groupId>com.github.jberkel.pay.me</groupId>
     <artifactId>library</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <type>apklib</type>
 </dependency>
 ```
@@ -68,4 +70,4 @@ This application is released under the terms of the [Apache License, Version 2.0
 [marketbilling]: https://code.google.com/p/marketbilling/
 [apklib]: https://code.google.com/p/maven-android-plugin/wiki/ApkLib
 [IabHelper]: https://github.com/jberkel/pay-me/blob/master/library/src/main/java/com/github/jberkel/pay/me/IabHelper.java
-
+[SMS Backup+]: https://github.com/jberkel/sms-backup-plus
