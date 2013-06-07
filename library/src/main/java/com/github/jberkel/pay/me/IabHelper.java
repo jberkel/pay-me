@@ -569,6 +569,8 @@ public class IabHelper {
                                           Inventory inventory,
                                           boolean queryDetails,
                                           List<String> extraSkus) throws JSONException, RemoteException, IabException {
+        checkNotDisposed();
+
         int result = queryPurchases(inventory, itemType);
         if (result != OK.code) {
             throw new IabException(result, "Error querying purchases for "+itemType);
@@ -581,7 +583,9 @@ public class IabHelper {
         }
     }
 
-    private int queryPurchases(Inventory inv, ItemType itemType) throws JSONException, RemoteException {
+    private int queryPurchases(Inventory inv, ItemType itemType) throws JSONException, RemoteException, IabException {
+        checkNotDisposed();
+
         logDebug("Querying owned items, item type: " + itemType);
         boolean verificationFailed = false;
         String continueToken = null;
