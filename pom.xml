@@ -14,7 +14,7 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>3.7.0</version>
                 <configuration>
                     <sdk>
                         <platform>14</platform>
@@ -58,6 +58,14 @@
         <url>http://zegoggl.es:8081/nexus/content/repositories/snapshots/</url>
       </snapshotRepository>
     </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <name>sonatype snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
