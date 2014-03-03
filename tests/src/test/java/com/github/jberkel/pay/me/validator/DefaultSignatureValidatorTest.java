@@ -29,11 +29,11 @@ public class DefaultSignatureValidatorTest {
     }
 
     @Test public void shouldVerifyPurchaseEmptyInput() throws Exception {
-        assertThat(validator.validate("", "")).isTrue();
+        assertThat(validator.validate("", "")).isFalse();
     }
 
     @Test public void shouldVerifyPurchaseNonEmptyInputEmptySignature() throws Exception {
-        assertThat(validator.validate("{}", "")).isTrue();
+        assertThat(validator.validate("{}", "")).isFalse();
     }
 
     @Test(expected = IllegalArgumentException.class)

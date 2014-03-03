@@ -709,11 +709,6 @@ public class IabHelper {
         return IInAppBillingService.Stub.asInterface(service);
     }
 
-    /* package */ void setSignatureValidator(SignatureValidator validator) {
-        if (validator == null) throw new IllegalArgumentException("need non-null validator");
-        mSignatureValidator = validator;
-    }
-
     private class BillingServiceConnection implements ServiceConnection {
         private OnIabSetupFinishedListener listener;
 

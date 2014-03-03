@@ -53,13 +53,16 @@ public class IabHelperTest {
     @Mock private IInAppBillingService service;
     @Mock private OnIabSetupFinishedListener setupListener;
     @Mock private OnIabPurchaseFinishedListener purchaseFinishedListener;
+    @Mock private SignatureValidator signatureValidator;
 
 
     private IabHelper helper;
     @Before
     public void before() {
         MockitoAnnotations.initMocks(this);
-        helper = new IabHelper(Robolectric.application, PUBLIC_KEY) {
+        when(signatureValidator.validate(anyString(), anyString())).thenReturn(true);
+
+        helper = new IabHelper(Robolectric.application, signatureValidator) {
             @Override
             protected IInAppBillingService getInAppBillingService(IBinder binder) {
                 return service;
@@ -424,14 +427,14 @@ public class IabHelperTest {
 
     @Test public void shouldHandleInvalidSignature() throws Exception {
         shouldStartIntentAfterSuccessfulLaunchPurchase();
-        SignatureValidator failing = mock(SignatureValidator.class);
-        when(failing.validate("{}", "some signature")).thenReturn(Boolean.FALSE);
-        helper.setSignatureValidator(failing);
 
         Intent data = new Intent();
         data.putExtra(RESPONSE_CODE, OK.code);
-        data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, "{ \"productId\": \"foo\" }");
+        String purchaseData = "{ \"productId\": \"foo\" }";
+        data.putExtra(RESPONSE_INAPP_PURCHASE_DATA, purchaseData);
         data.putExtra(RESPONSE_INAPP_SIGNATURE, "some signature");
+
+        when(signatureValidator.validate(eq(purchaseData), eq("some signature"))).thenReturn(false);
 
         assertThat(helper.handleActivityResult(TEST_REQUEST_CODE, Activity.RESULT_OK, data)).isTrue();
         verify(purchaseFinishedListener).onIabPurchaseFinished(
@@ -717,6 +720,7 @@ public class IabHelperTest {
 
     @Test public void shouldQueryInventoryInvalidSignature() throws Exception {
         shouldStartSetup_CheckForSubscriptions_Unavailable();
+        when(signatureValidator.validate(eq("{}"), eq("INVALID"))).thenReturn(false);
 
         Bundle response = new Bundle();
 
