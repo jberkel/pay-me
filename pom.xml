@@ -17,7 +17,7 @@
                 <version>3.8.2</version>
                 <configuration>
                     <sdk>
-                        <platform>14</platform>
+                        <platform>19</platform>
                     </sdk>
                 </configuration>
                 <extensions>true</extensions>
