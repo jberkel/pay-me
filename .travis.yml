@@ -11,3 +11,5 @@ before_install:
 install: "mvn install -DskipTests -e"
 before_script: "mvn android:lint --projects library"
 script: "mvn install"
+notifications:
+  email: false
