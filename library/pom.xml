@@ -20,7 +20,7 @@
                 <configuration>
                     <attachJar>true</attachJar>
                     <sdk>
-                        <platform>14</platform>
+                        <platform>19</platform>
                     </sdk>
                     <lint>
                         <skip>false</skip>
