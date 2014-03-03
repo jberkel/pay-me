@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.jberkel.pay.me</groupId>
     <artifactId>parent</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.3</version>
     <packaging>pom</packaging>
     <name>pay-me parent</name>
     <description>pay-me parent</description>
@@ -101,5 +101,6 @@
         <url>https://github.com/jberkel/pay-me</url>
         <connection>scm:git:https://github.com/jberkel/pay-me.git</connection>
         <developerConnection>scm:git:git@github.com:jberkel/pay-me.git</developerConnection>
-    </scm>
+      <tag>0.0.3</tag>
+  </scm>
 </project>
