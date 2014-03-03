@@ -26,7 +26,7 @@ Add a maven dependency in your main project:
 <dependency>
     <groupId>com.github.jberkel.pay.me</groupId>
     <artifactId>library</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.3</version>
     <type>apklib</type>
 </dependency>
 ```
