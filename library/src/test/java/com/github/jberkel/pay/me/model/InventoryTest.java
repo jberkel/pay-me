@@ -80,7 +80,7 @@ public class InventoryTest {
         inventory.addPurchase(p1);
         inventory.addPurchase(p2);
 
-        assertThat(inventory.getAllOwnedSkus()).containsExactly("sku1", "sku2");
+        assertThat(inventory.getAllOwnedSkus()).containsOnly("sku1", "sku2");
     }
 
     @Test public void testGetAllOwnedSkusForItemType() throws Exception {
@@ -109,8 +109,8 @@ public class InventoryTest {
 
         inventory.addPurchase(p1);
         inventory.addPurchase(p2);
-        assertThat(inventory.getAllOwnedSkus()).containsExactly("sku1", "sku2");
+        assertThat(inventory.getAllOwnedSkus()).containsOnly("sku1", "sku2");
         inventory.erasePurchase("sku1");
-        assertThat(inventory.getAllOwnedSkus()).containsExactly("sku2");
+        assertThat(inventory.getAllOwnedSkus()).containsOnly("sku2");
     }
 }
