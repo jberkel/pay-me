@@ -43,30 +43,6 @@
                     <runOrder>random</runOrder>
                 </configuration>
             </plugin>
-
-
-            <!-- workaround for https://code.google.com/p/maven-android-plugin/issues/detail?id=139 -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <type>jar</type>
-                                    <file>${project.build.directory}/${project.build.finalName}.jar</file>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
