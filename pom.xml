@@ -45,11 +45,9 @@
 
     <distributionManagement>
       <repository>
-        <id>repo</id>
-        <name>zegoggles Snapshots</name>
-        <url>http://zegoggl.es:8081/nexus/content/repositories/releases/</url>
+        <id>bintray</id>
+        <url>https://api.bintray.com/maven/jberkel/maven/pay-me</url>
       </repository>
-
       <snapshotRepository>
         <uniqueVersion>true</uniqueVersion>
         <id>snapshot-repo</id>
