@@ -15,13 +15,12 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <groupId>com.simpligility.maven.plugins</groupId>
                 <artifactId>android-maven-plugin</artifactId>
                 <configuration>
                     <attachJar>true</attachJar>
-                    <sdk>
-                        <platform>19</platform>
-                    </sdk>
+                    <androidManifestFile>AndroidManifest.xml</androidManifestFile>
+                    <resourceDirectory>res</resourceDirectory>
                     <lint>
                         <skip>false</skip>
                         <failOnError>true</failOnError>
