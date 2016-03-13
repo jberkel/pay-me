@@ -12,4 +12,4 @@ install: mvn install -DskipTests=true -e
 script:
   - mvn android:lint --projects library
   - mvn test
-after_failure: cat target/lint-results/lint-results.xml || true
+after_failure: cat library/target/lint-results/lint-results.xml || true
