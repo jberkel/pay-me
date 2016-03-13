@@ -19,12 +19,6 @@
                     <sdk>
                         <platform>21</platform>
                     </sdk>
-                    <lint>
-                        <skip>false</skip>
-                        <failOnError>true</failOnError>
-                        <enableHtml>true</enableHtml>
-                        <warningsAsErrors>true</warningsAsErrors>
-                    </lint>
                 </configuration>
                 <extensions>true</extensions>
             </plugin>

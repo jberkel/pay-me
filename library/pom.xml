@@ -21,6 +21,7 @@
                     <attachJar>true</attachJar>
                     <androidManifestFile>AndroidManifest.xml</androidManifestFile>
                     <resourceDirectory>res</resourceDirectory>
+                    <aidlSourceDirectory>${project.basedir}/src/main/java</aidlSourceDirectory>
                     <lint>
                         <skip>false</skip>
                         <failOnError>true</failOnError>
