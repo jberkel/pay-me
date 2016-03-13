@@ -14,11 +14,17 @@
             <plugin>
                 <groupId>com.simpligility.maven.plugins</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>4.0.0</version>
+                <version>4.4.1</version>
                 <configuration>
                     <sdk>
                         <platform>21</platform>
                     </sdk>
+                    <lint>
+                        <skip>false</skip>
+                        <failOnError>true</failOnError>
+                        <enableHtml>true</enableHtml>
+                        <warningsAsErrors>true</warningsAsErrors>
+                    </lint>
                 </configuration>
                 <extensions>true</extensions>
             </plugin>
