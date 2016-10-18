@@ -85,7 +85,7 @@ import static com.github.jberkel.pay.me.model.ItemType.SUBS;
  * @author Jan Berkel
  */
 public class IabHelper {
-    /* package */ static final Intent BIND_BILLING_SERVICE = new Intent("com.android.vending.billing.InAppBillingService.BIND");
+    /* package */ static final Intent BIND_BILLING_SERVICE = new Intent("com.android.vending.billing.InAppBillingService.BIND").setPackage("com.android.vending");
 
     private Context mContext;
     private IInAppBillingService mService;
